@@ -2,25 +2,35 @@ package repository
 
 import (
 	"log"
+	"os"
 	"server-a/config"
+	"time"
 
-	"github.com/redis/rueidis"
+	gocql "github.com/apache/cassandra-gocql-driver/v2"
+	gocqlastra "github.com/datastax/gocql-astra"
 )
 
 type Repository struct {
-	client rueidis.Client
+	session *gocql.Session
 }
 
 func NewRepository(config *config.Config) *Repository {
-	r := new(Repository)
-	c := rueidis.ClientOption{
-		InitAddress: config.Redis.URLS,
-	}
-	var err error
-	r.client, err = rueidis.NewClient(c)
+	cluster, err := gocqlastra.NewClusterFromBundle(os.Getenv("ASTRA_DB_SECURE_BUNDLE_PATH"),
+		"token", os.Getenv("ASTRA_DB_APPLICATION_TOKEN"), 30*time.Second)
+
 	if err != nil {
-		log.Panicf("Fail to connect to redis: %v", err)
+		log.Panicf("fail to connect cassandra cluster by bundle: %v", err)
 	}
+	cluster.Timeout = 30 * time.Second
+	cluster.Keyspace = config.Cassandra.Keyspace
+
+	session, err := gocql.NewSession(*cluster)
+
+	if err != nil {
+		log.Panicf("fail to create session from cassandra cluster: %v", err)
+	}
+
+	r := &Repository{session}
 
 	return r
 }

@@ -13,9 +13,9 @@ type Config struct {
 		Service string
 	} `toml:"info"`
 
-	Redis struct {
-		URLS []string
-	} `toml:"redis"`
+	Cassandra struct {
+		Keyspace string
+	} `toml:"cassandra"`
 }
 
 func NewConfig(path string) *Config {
