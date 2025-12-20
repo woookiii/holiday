@@ -1,8 +1,6 @@
 package network
 
 import (
-	"strings"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,8 +14,7 @@ const (
 )
 
 type header struct {
-	StatusCode int    `json:"statusCode"`
-	Message    string `json:"message"`
+	StatusCode int `json:"statusCode"`
 }
 
 type response struct {
@@ -25,9 +22,9 @@ type response struct {
 	Result any `json:"result"`
 }
 
-func res(c *gin.Context, statusCode int, result any, messages ...string) {
+func res(c *gin.Context, statusCode int, result any) {
 	c.JSON(statusCode, &response{
-		header: &header{StatusCode: statusCode, Message: strings.Join(messages, ",")},
+		header: &header{StatusCode: statusCode},
 		Result: result,
 	})
 }
@@ -35,21 +32,20 @@ func res(c *gin.Context, statusCode int, result any, messages ...string) {
 func setGin(engine *gin.Engine) {
 	engine.Use(gin.Logger())
 	engine.Use(gin.Recovery())
-	//TODO: cors if needed
 }
 
-func (n *Network) Router(httpMethod HTTPMethod, path string, handler gin.HandlerFunc) {
+func (n *Network) Router(httpMethod HTTPMethod, path string, handler ...gin.HandlerFunc) {
 	e := n.engine
 
 	switch httpMethod {
 	case GET:
-		e.GET(path, handler)
+		e.GET(path, handler...)
 	case POST:
-		e.POST(path, handler)
+		e.POST(path, handler...)
 	case PUT:
-		e.PUT(path, handler)
+		e.PUT(path, handler...)
 	case DELETE:
-		e.DELETE(path, handler)
+		e.DELETE(path, handler...)
 
 	default:
 		panic("This HTTP method is not registered")

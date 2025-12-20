@@ -24,7 +24,7 @@ func (r *Repository) SaveMember(req *dto.MemberSaveReq) error {
 	return nil
 }
 
-func (r *Repository) IsEmailAlreadyUsed(email string) (bool, error) {
+func (r *Repository) FindByEmail(email string) (bool, error) {
 
 	err := r.session.Query(
 		"SELECT * FROM member_email WHERE email = ?",

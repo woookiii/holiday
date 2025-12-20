@@ -5,3 +5,13 @@ type MemberSaveReq struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
+
+type MemberLoginReq struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type Token struct {
+	AccessToken  string `json:"token"`
+	RefreshToken string `json:"refresh-token"`
+}
