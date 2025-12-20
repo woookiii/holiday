@@ -2,12 +2,11 @@ package repository
 
 import (
 	"log"
-	"os"
 	"server-a/config"
 	"time"
 
-	gocql "github.com/apache/cassandra-gocql-driver/v2"
-	gocqlastra "github.com/datastax/gocql-astra"
+	"github.com/apache/cassandra-gocql-driver/v2"
+	"github.com/apache/cassandra-gocql-driver/v2/lz4"
 )
 
 type Repository struct {
@@ -15,14 +14,16 @@ type Repository struct {
 }
 
 func NewRepository(config *config.Config) *Repository {
-	cluster, err := gocqlastra.NewClusterFromBundle(os.Getenv("ASTRA_DB_SECURE_BUNDLE_PATH"),
-		"token", os.Getenv("ASTRA_DB_APPLICATION_TOKEN"), 30*time.Second)
 
-	if err != nil {
-		log.Panicf("fail to connect cassandra cluster by bundle: %v", err)
-	}
-	cluster.Timeout = 30 * time.Second
+	cluster := gocql.NewCluster("localhost:9042")
+	cluster.Keyspace = "default"
+	cluster.Timeout = 1 * time.Minute
+	cluster.Consistency = gocql.Quorum
 	cluster.Keyspace = config.Cassandra.Keyspace
+	cluster.Compressor = &lz4.LZ4Compressor{}
+	//cluster.PageSize = 1000
+	//cluster.NextPagePrefetch = 0.25
+	//cluster.Tracer =
 
 	session, err := gocql.NewSession(*cluster)
 

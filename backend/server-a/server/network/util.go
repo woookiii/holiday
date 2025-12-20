@@ -25,8 +25,8 @@ type response struct {
 	Result any `json:"result"`
 }
 
-func res(ctx *gin.Context, statusCode int, result any, messages ...string) {
-	ctx.JSON(statusCode, &response{
+func res(c *gin.Context, statusCode int, result any, messages ...string) {
+	c.JSON(statusCode, &response{
 		header: &header{StatusCode: statusCode, Message: strings.Join(messages, ",")},
 		Result: result,
 	})

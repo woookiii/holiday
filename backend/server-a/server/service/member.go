@@ -2,18 +2,31 @@ package service
 
 import (
 	"log"
-	"server-a/server/entity"
+	"server-a/server/dto"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *Service) CreateMember(member *entity.Member) error {
-
-	err := s.repository.SaveMember(member)
+func (s *Service) CreateMember(req *dto.MemberSaveReq) error {
+	i, err := s.repository.IsEmailAlreadyUsed(req.Email)
 	if err != nil {
-		log.Printf("Failed to save member to redis member id: %v, err : %v", member.Id, err)
+		log.Printf("fail to create member: %v", err)
 		return err
 	}
-
-	log.Printf("Success to save new member to redis member id: %v", member.Id)
-
+	if i == true {
+		log.Printf("this email already exist")
+		return nil
+	}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Printf("fail to hash password: %v", err)
+		return err
+	}
+	req.Password = string(hashedPassword)
+	err = s.repository.SaveMember(req)
+	if err != nil {
+		log.Printf("fail to create member: %v", err)
+		return err
+	}
 	return nil
 }
