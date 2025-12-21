@@ -32,14 +32,16 @@ func (n *Network) login(c *gin.Context) {
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		res(c, http.StatusUnauthorized, err)
+		return
 	}
 	t, err := n.service.Login(&req)
 	if err != nil {
 		res(c, http.StatusUnauthorized, err)
+		return
 	}
 	c.SetCookie("refresh-token",
 		t.RefreshToken,
-		1000000000000,
+		10000000000000,
 		"",
 		"",
 		true,

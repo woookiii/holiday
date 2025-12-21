@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"errors"
 	"log"
 	"server-a/server/dto"
+	"server-a/server/entity"
 	"time"
 
 	gocql "github.com/apache/cassandra-gocql-driver/v2"
@@ -24,18 +24,31 @@ func (r *Repository) SaveMember(req *dto.MemberSaveReq) error {
 	return nil
 }
 
-func (r *Repository) FindByEmail(email string) (bool, error) {
-
+func (r *Repository) EmailExists(email string) (bool, error) {
+	var c int64
 	err := r.session.Query(
-		"SELECT * FROM member_email WHERE email = ?",
+		"SELECT COUNT(*) FROM member_by_email WHERE email = ?",
 		email,
-	).Exec()
-	if errors.Is(err, gocql.ErrNotFound) {
+	).Scan(&c)
+	if c == 0 {
 		return false, nil
 	}
 	if err != nil {
-		log.Printf("fail to select email: %v", err)
+		log.Printf("fail to find by email: %v", err)
 		return true, err
 	}
 	return true, nil
+}
+
+func (r *Repository) FindIdPasswordRoleByEmail(email string) (*entity.Member, error) {
+	var m entity.Member
+	err := r.session.Query(
+		"SELECT id, password, role FROM member_by_email WHERE email = ?",
+		email,
+	).Scan(&m.Id, &m.Password, &m.Role)
+	if err != nil {
+		log.Printf("fail to find by email: %v", err)
+		return nil, err
+	}
+	return &m, nil
 }
