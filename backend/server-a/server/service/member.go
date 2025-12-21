@@ -3,11 +3,8 @@ package service
 import (
 	"errors"
 	"log"
-	"os"
 	"server-a/server/dto"
-	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -47,14 +44,14 @@ func (s *Service) Login(req *dto.MemberLoginReq) (*dto.Token, error) {
 		log.Printf("invalid password: %v, err: %v", req.Password, err)
 		return nil, err
 	}
-	secretKeyAt := []byte(os.Getenv("SECRET_KEY_AT"))
-	secretKeyRt := []byte(os.Getenv("SECRET_KEY_RT"))
-	at, err := createToken(m.Id.String(), m.Role, secretKeyAt, 10)
+	sAT := s.secretKeyAT
+	sRT := s.secretKeyRT
+	at, err := createToken(m.Id.String(), m.Role, sAT, 10)
 	if err != nil {
 		log.Printf("fail to create access token: %v", err)
 		return nil, err
 	}
-	rt, err := createToken(m.Id.String(), m.Role, secretKeyRt, 100000)
+	rt, err := createToken(m.Id.String(), m.Role, sRT, 100000)
 	if err != nil {
 		log.Printf("fail to create refresh token: %v", err)
 		return nil, err
@@ -64,20 +61,4 @@ func (s *Service) Login(req *dto.MemberLoginReq) (*dto.Token, error) {
 		RefreshToken: rt,
 	}
 	return t, nil
-}
-
-func createToken(id, role string, secretKey []byte, expirationMinutes int64) (string, error) {
-	claims := jwt.MapClaims{
-		"sub":  id,
-		"role": role,
-		"iat":  time.Now().Unix(),
-		"exp":  time.Now().Add(time.Minute * time.Duration(expirationMinutes)).Unix(),
-	}
-
-	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(secretKey)
-	if err != nil {
-		log.Printf("fail to make token")
-		return "", err
-	}
-	return token, nil
 }
