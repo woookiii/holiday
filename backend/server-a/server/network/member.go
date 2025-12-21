@@ -17,13 +17,17 @@ func memberRouter(n *Network) {
 func (n *Network) createMember(c *gin.Context) {
 	var req dto.MemberSaveReq
 
-	if err := c.ShouldBindJSON(&req); err != nil {
-		res(c, http.StatusUnprocessableEntity, err)
-	} else if err = n.service.CreateMember(&req); err != nil {
-		res(c, http.StatusInternalServerError, err)
-	} else {
-		res(c, http.StatusOK, "Success create member")
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		res(c, http.StatusUnprocessableEntity, err.Error())
+		return
 	}
+	err = n.service.CreateMember(&req)
+	if err != nil {
+		res(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	res(c, http.StatusOK, "Success create member")
 }
 
 func (n *Network) login(c *gin.Context) {
@@ -31,12 +35,12 @@ func (n *Network) login(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		res(c, http.StatusUnauthorized, err)
+		res(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 	t, err := n.service.Login(&req)
 	if err != nil {
-		res(c, http.StatusUnauthorized, err)
+		res(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 	c.SetCookie("refresh-token",
@@ -47,13 +51,20 @@ func (n *Network) login(c *gin.Context) {
 		true,
 		true,
 	)
-	res(c, http.StatusOK, t.AccessToken)
-
+	res(c, http.StatusOK, map[string]any{"accessToken": t.AccessToken})
 }
 
 func (n *Network) refreshToken(c *gin.Context) {
-	//rt, err := c.Request.Cookie("refresh-token")
-	//if err != nil {
-	//	res(c, http.StatusUnauthorized, err)
-	//}
+	rt, err := c.Request.Cookie("refresh-token")
+	if err != nil {
+		res(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	at, err := n.service.GenerateAccessToken(rt.Value)
+	if err != nil {
+		res(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	res(c, http.StatusOK, map[string]any{"accessToken": at})
+
 }

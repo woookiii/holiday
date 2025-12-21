@@ -6,15 +6,19 @@ import (
 	"server-a/server/entity"
 	"time"
 
-	gocql "github.com/apache/cassandra-gocql-driver/v2"
+	"github.com/apache/cassandra-gocql-driver/v2"
 )
 
 func (r *Repository) SaveMember(req *dto.MemberSaveReq) error {
+	id := gocql.TimeUUID()
 	err := r.session.Batch(gocql.LoggedBatch).
-		Query("INSERT INTO member_email (email) VALUES (?);", req.Email).
-		Query(""+
+		Query(
+			"INSERT INTO member_by_email (id, name, email, password, role, created_time) VALUES (?, ?, ?, ?, ?, ?);",
+			id, req.Name, req.Email, req.Password, "user", time.Now(),
+		).
+		Query(
 			"INSERT INTO member_by_id (id, name, email, password, role, created_time) VALUES (?, ?, ?, ?, ?, ?)",
-			gocql.TimeUUID(), req.Name, req.Email, req.Password, "user", time.Now(),
+			id, req.Name, req.Email, req.Password, "user", time.Now(),
 		).
 		Exec()
 	if err != nil {

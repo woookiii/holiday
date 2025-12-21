@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"log"
 	"os"
 	"server-a/server/dto"
@@ -18,7 +19,7 @@ func (s *Service) CreateMember(req *dto.MemberSaveReq) error {
 	}
 	if i == true {
 		log.Printf("this email already exist")
-		return nil
+		return errors.New("this email already exist")
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {

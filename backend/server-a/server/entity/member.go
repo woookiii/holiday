@@ -3,7 +3,7 @@ package entity
 import (
 	"time"
 
-	gocql "github.com/apache/cassandra-gocql-driver/v2"
+	"github.com/apache/cassandra-gocql-driver/v2"
 )
 
 type Member struct {
