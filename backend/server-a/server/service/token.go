@@ -7,6 +7,7 @@ import (
 	"server-a/server/dto"
 	"time"
 
+	gocql "github.com/apache/cassandra-gocql-driver/v2"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -25,13 +26,20 @@ func (s *Service) GenerateAccessToken(refreshToken string) (*dto.Token, error) {
 		log.Printf("fail to get subject from claim: %v", err)
 		return nil, err
 	}
-	tokenInDB, err := s.repository.FindTokenById(id)
+	uuid, err := gocql.ParseUUID(id)
+	if err != nil {
+		log.Printf("fail to parse gocql uuid from id: %v", err)
+	}
+	tokenInDB, err := s.repository.FindTokenById(uuid)
 	if err != nil {
 		log.Printf("fail to find token: %v", err)
 		return nil, err
 	}
 	if rt.Raw != tokenInDB.RefreshToken {
-		log.Printf("token is not same with DB: %v", rt.Raw)
+		log.Printf(
+			"token is not same with DB- received token: %v, db token: %v",
+			rt.Raw, tokenInDB.RefreshToken,
+		)
 		return nil, fmt.Errorf("invalid token: %v", rt.Raw)
 	}
 	role, ok := rt.Claims.(jwt.MapClaims)["role"].(string)
@@ -54,12 +62,12 @@ func (s *Service) keyFunc(token *jwt.Token) (any, error) {
 	return s.secretKeyRT, nil
 }
 
-func createToken(id, role string, secretKey []byte, expirationMinutes int64) (string, error) {
+func createToken(id, role string, secretKey []byte, ttl int64) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":  id,
 		"role": role,
 		"iat":  time.Now().Unix(),
-		"exp":  time.Now().Add(time.Minute * time.Duration(expirationMinutes)).Unix(),
+		"exp":  time.Now().Add(time.Second * time.Duration(ttl)).Unix(),
 	}
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(secretKey)

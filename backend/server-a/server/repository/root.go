@@ -11,6 +11,7 @@ import (
 
 type Repository struct {
 	session *gocql.Session
+	rtExp   int64
 }
 
 func NewRepository(config *config.Config) *Repository {
@@ -31,7 +32,10 @@ func NewRepository(config *config.Config) *Repository {
 		log.Panicf("fail to create session from cassandra cluster: %v", err)
 	}
 
-	r := &Repository{session}
+	r := &Repository{
+		session: session,
+		rtExp:   config.Exp.RtExp,
+	}
 
 	return r
 }

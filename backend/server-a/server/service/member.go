@@ -44,18 +44,17 @@ func (s *Service) Login(req *dto.MemberLoginReq) (*dto.Token, error) {
 		log.Printf("invalid password: %v, err: %v", req.Password, err)
 		return nil, err
 	}
-	sAT := s.secretKeyAT
-	sRT := s.secretKeyRT
-	at, err := createToken(m.Id.String(), m.Role, sAT, s.aTExp)
+	at, err := createToken(m.Id.String(), m.Role, s.secretKeyAT, s.aTExp)
 	if err != nil {
 		log.Printf("fail to create access token: %v", err)
 		return nil, err
 	}
-	rt, err := createToken(m.Id.String(), m.Role, sRT, s.rTExp)
+	rt, err := createToken(m.Id.String(), m.Role, s.secretKeyRT, s.rTExp)
 	if err != nil {
 		log.Printf("fail to create refresh token: %v", err)
 		return nil, err
 	}
+	err = s.repository.SaveRefreshToken(m.Id, rt)
 	t := &dto.Token{
 		AccessToken:  at,
 		RefreshToken: rt,

@@ -31,7 +31,7 @@ func (r *Repository) SaveMember(req *dto.MemberSaveReq) error {
 func (r *Repository) EmailExists(email string) (bool, error) {
 	var c int64
 	err := r.session.Query(
-		"SELECT COUNT(*) FROM member_by_email WHERE email = ?",
+		"SELECT COUNT(1) FROM member_by_email WHERE email = ?",
 		email,
 	).Scan(&c)
 	if c == 0 {
