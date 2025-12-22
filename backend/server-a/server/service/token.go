@@ -11,20 +11,40 @@ import (
 )
 
 func (s *Service) GenerateAccessToken(refreshToken string) (*dto.Token, error) {
-	token, err := jwt.Parse(refreshToken, s.keyFunc)
+	rt, err := jwt.Parse(refreshToken, s.keyFunc)
 	if err != nil {
 		log.Printf("fail to parse token: %v", err)
 		return nil, err
 	}
-	if !token.Valid {
-		log.Printf("invalid token: %v", token)
+	if !rt.Valid {
+		log.Printf("invalid token: %v", rt)
 		return nil, errors.New("invalid token")
 	}
-	id, err := token.Claims.GetSubject()
+	id, err := rt.Claims.GetSubject()
 	if err != nil {
-		i
+		log.Printf("fail to get subject from claim: %v", err)
+		return nil, err
 	}
-	return token, nil
+	tokenInDB, err := s.repository.FindTokenById(id)
+	if err != nil {
+		log.Printf("fail to find token: %v", err)
+		return nil, err
+	}
+	if rt.Raw != tokenInDB.RefreshToken {
+		log.Printf("token is not same with DB: %v", rt.Raw)
+		return nil, fmt.Errorf("invalid token: %v", rt.Raw)
+	}
+	role, ok := rt.Claims.(jwt.MapClaims)["role"].(string)
+	if !ok {
+		log.Printf("fail to get role - token: %v", rt.Raw)
+		return nil, fmt.Errorf("fail to get role - token: %v", rt.Raw)
+	}
+	at, err := createToken(id, role, s.secretKeyAT, s.aTExp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.Token{AccessToken: at}, nil
 }
 
 func (s *Service) keyFunc(token *jwt.Token) (any, error) {

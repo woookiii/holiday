@@ -16,7 +16,7 @@ func NewServer(cfg *config.Config) *Server {
 
 	r := repository.NewRepository(cfg)
 
-	s := service.NewService(r)
+	s := service.NewService(cfg, r)
 
 	n := network.NewNetwork(cfg, s)
 

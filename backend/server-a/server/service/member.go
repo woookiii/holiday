@@ -46,12 +46,12 @@ func (s *Service) Login(req *dto.MemberLoginReq) (*dto.Token, error) {
 	}
 	sAT := s.secretKeyAT
 	sRT := s.secretKeyRT
-	at, err := createToken(m.Id.String(), m.Role, sAT, 10)
+	at, err := createToken(m.Id.String(), m.Role, sAT, s.aTExp)
 	if err != nil {
 		log.Printf("fail to create access token: %v", err)
 		return nil, err
 	}
-	rt, err := createToken(m.Id.String(), m.Role, sRT, 100000)
+	rt, err := createToken(m.Id.String(), m.Role, sRT, s.rTExp)
 	if err != nil {
 		log.Printf("fail to create refresh token: %v", err)
 		return nil, err

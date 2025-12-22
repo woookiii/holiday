@@ -1,0 +1,11 @@
+[info]
+port = "127.0.0.1:8080"
+service = "alpha"
+
+[exp]
+atExp = 10
+rTExp = 1000000
+
+
+[cassandra]
+keyspace = "default"
