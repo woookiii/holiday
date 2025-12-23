@@ -9,7 +9,7 @@ import (
 	"github.com/apache/cassandra-gocql-driver/v2"
 )
 
-func (r *Repository) SaveMember(req *dto.MemberSaveReq) error {
+func (r *Repository) SaveMember(req *dto.MemberSaveReq) (*entity.Member, error) {
 	id := gocql.TimeUUID()
 	err := r.session.Batch(gocql.LoggedBatch).
 		Query(
@@ -23,9 +23,9 @@ func (r *Repository) SaveMember(req *dto.MemberSaveReq) error {
 		Exec()
 	if err != nil {
 		log.Printf("fail to save member: %v", err)
-		return err
+		return nil, err
 	}
-	return nil
+	return &entity.Member{Id: id}, err
 }
 
 func (r *Repository) EmailExists(email string) (bool, error) {

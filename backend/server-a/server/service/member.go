@@ -4,32 +4,46 @@ import (
 	"errors"
 	"log"
 	"server-a/server/dto"
+	"server-a/server/entity"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *Service) CreateMember(req *dto.MemberSaveReq) error {
+func (s *Service) IsEmailValid(email string) (bool, error) {
+	i, err := s.repository.EmailExists(email)
+	if err != nil {
+		log.Printf("fail to check email: %v", err)
+		return false, err
+	}
+	if i {
+		log.Printf("email already exist")
+		return false, nil
+	}
+	return true, nil
+}
+
+func (s *Service) CreateMember(req *dto.MemberSaveReq) (*entity.Member, error) {
 	i, err := s.repository.EmailExists(req.Email)
 	if err != nil {
 		log.Printf("fail to create member: %v", err)
-		return err
+		return nil, err
 	}
-	if i == true {
+	if i {
 		log.Printf("this email already exist")
-		return errors.New("this email already exist")
+		return nil, errors.New("this email already exist")
 	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("fail to hash password: %v", err)
-		return err
+		return nil, err
 	}
 	req.Password = string(hashedPassword)
-	err = s.repository.SaveMember(req)
+	m, err := s.repository.SaveMember(req)
 	if err != nil {
 		log.Printf("fail to create member: %v", err)
-		return err
+		return nil, err
 	}
-	return nil
+	return m, nil
 }
 
 func (s *Service) Login(req *dto.MemberLoginReq) (*dto.Token, error) {

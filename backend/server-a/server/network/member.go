@@ -8,10 +8,9 @@ import (
 )
 
 func memberRouter(n *Network) {
-
+	n.Router(GET, "/member/check-email/:email", n.checkEmail)
 	n.Router(POST, "/member/create", n.createMember)
 	n.Router(POST, "/member/login", n.login)
-	n.Router(POST, "/member/refresh-token", n.refreshToken)
 }
 
 func (n *Network) createMember(c *gin.Context) {
@@ -22,12 +21,12 @@ func (n *Network) createMember(c *gin.Context) {
 		res(c, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
-	err = n.service.CreateMember(&req)
+	m, err := n.service.CreateMember(&req)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	res(c, http.StatusOK, "Success create member")
+	res(c, http.StatusOK, m.Id.String())
 }
 
 func (n *Network) login(c *gin.Context) {
@@ -45,26 +44,21 @@ func (n *Network) login(c *gin.Context) {
 	}
 	c.SetCookie("refresh-token",
 		t.RefreshToken,
-		10000000000000,
+		int(n.rtExp),
 		"",
 		"",
-		true,
+		false,
 		true,
 	)
 	res(c, http.StatusOK, map[string]any{"accessToken": t.AccessToken})
 }
 
-func (n *Network) refreshToken(c *gin.Context) {
-	rt, err := c.Request.Cookie("refresh-token")
+func (n *Network) checkEmail(c *gin.Context) {
+	email := c.Param("email")
+	ok, err := n.service.IsEmailValid(email)
 	if err != nil {
-		res(c, http.StatusUnauthorized, err.Error())
+		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	at, err := n.service.GenerateAccessToken(rt.Value)
-	if err != nil {
-		res(c, http.StatusUnauthorized, err.Error())
-		return
-	}
-	res(c, http.StatusOK, map[string]any{"accessToken": at})
-
+	res(c, http.StatusOK, ok)
 }
