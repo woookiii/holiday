@@ -57,4 +57,5 @@ require (
 	golang.org/x/tools v0.34.0 // indirect
 	google.golang.org/protobuf v1.36.9 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
+	rsc.io/qr v0.2.0 // indirect
 )

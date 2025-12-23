@@ -1,8 +1,6 @@
 package service
 
 import (
-	"crypto/rand"
-	"encoding/base32"
 	"errors"
 	"log"
 	"server-a/server/dto"
@@ -47,15 +45,6 @@ func (s *Service) CreateMember(req *dto.MemberSaveReq) (*entity.Member, error) {
 		return nil, err
 	}
 	return m, nil
-}
-
-func generateUserSecret() (string, error) {
-	bytes := make([]byte, 10) // 10 bytes, so it is 16 base32 chars
-	if _, err := rand.Read(bytes); err != nil {
-		return "", err
-	}
-	secret := base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(bytes)
-	return secret, nil
 }
 
 func (s *Service) Login(req *dto.MemberLoginReq) (*dto.Token, error) {

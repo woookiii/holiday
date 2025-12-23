@@ -9,8 +9,8 @@ import (
 
 type Config struct {
 	Info struct {
-		Port    string
-		Service string
+		Port   string
+		Issuer string
 	} `toml:"info"`
 
 	Exp struct {

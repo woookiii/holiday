@@ -14,6 +14,7 @@ type Service struct {
 	secretKeyRT []byte
 	aTExp       int64
 	rTExp       int64
+	issuer      string
 }
 
 func NewService(cfg *config.Config, r *repository.Repository) *Service {
@@ -23,5 +24,6 @@ func NewService(cfg *config.Config, r *repository.Repository) *Service {
 		secretKeyRT: []byte(os.Getenv("SECRET_KEY_RT")),
 		aTExp:       cfg.Exp.ATExp,
 		rTExp:       cfg.Exp.RtExp,
+		issuer:      cfg.Info.Issuer,
 	}
 }
