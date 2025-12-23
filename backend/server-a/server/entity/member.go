@@ -11,6 +11,7 @@ type Member struct {
 	Name        string     `db:"name" binding:"required"`
 	Email       string     `db:"email" binding:"required"`
 	Password    string     `db:"password" binding:"required"`
+	Secret      string     `db:"secret" binding:"required"`
 	Role        string     `db:"role" binding:"required"`
 	CreatedTime time.Time  `db:"created_time" binding:"required"`
 	UpdatedTime time.Time  `db:"updated_time"`

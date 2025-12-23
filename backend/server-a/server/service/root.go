@@ -4,6 +4,8 @@ import (
 	"os"
 	"server-a/config"
 	"server-a/server/repository"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 type Service struct {

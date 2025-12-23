@@ -9,16 +9,16 @@ import (
 	"github.com/apache/cassandra-gocql-driver/v2"
 )
 
-func (r *Repository) SaveMember(req *dto.MemberSaveReq) (*entity.Member, error) {
+func (r *Repository) SaveMember(req *dto.MemberSaveReq, secret string) (*entity.Member, error) {
 	id := gocql.TimeUUID()
 	err := r.session.Batch(gocql.LoggedBatch).
 		Query(
-			"INSERT INTO member_by_email (id, name, email, password, role, created_time) VALUES (?, ?, ?, ?, ?, ?);",
-			id, req.Name, req.Email, req.Password, "user", time.Now(),
+			"INSERT INTO member_by_email (id, name, email, password, secret, role, created_time) VALUES (?, ?, ?, ?, ?, ?, ?);",
+			id, req.Name, req.Email, req.Password, secret, "user", time.Now(),
 		).
 		Query(
-			"INSERT INTO member_by_id (id, name, email, password, role, created_time) VALUES (?, ?, ?, ?, ?, ?)",
-			id, req.Name, req.Email, req.Password, "user", time.Now(),
+			"INSERT INTO member_by_id (id, name, email, password, secret, role, created_time) VALUES (?, ?, ?, ?, ?, ?, ?)",
+			id, req.Name, req.Email, req.Password, secret, "user", time.Now(),
 		).
 		Exec()
 	if err != nil {
