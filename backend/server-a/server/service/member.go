@@ -9,19 +9,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *Service) IsEmailValid(email string) (bool, error) {
-	i, err := s.repository.EmailExists(email)
-	if err != nil {
-		log.Printf("fail to check email: %v", err)
-		return false, err
-	}
-	if i {
-		log.Printf("email already exist")
-		return false, nil
-	}
-	return true, nil
-}
-
 func (s *Service) CreateMember(req *dto.MemberSaveReq) (*entity.Member, error) {
 	i, err := s.repository.EmailExists(req.Email)
 	if err != nil {
@@ -44,11 +31,11 @@ func (s *Service) CreateMember(req *dto.MemberSaveReq) (*entity.Member, error) {
 		log.Printf("fail to create member: %v", err)
 		return nil, err
 	}
+
 	return m, nil
 }
 
 func (s *Service) Login(req *dto.MemberLoginReq) (*dto.Token, error) {
-
 	m, err := s.repository.FindIdPasswordRoleByEmail(req.Email)
 	if err != nil {
 		log.Printf("fail to login - email: %v, err: %v", req.Email, err)

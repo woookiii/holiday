@@ -7,7 +7,7 @@ import (
 )
 
 func tokenRouter(n *Network) {
-	n.Router(POST, "/member/refresh-token", n.refreshToken)
+	n.Router(POST, "/refresh-token", n.refreshToken)
 }
 
 func (n *Network) refreshToken(c *gin.Context) {

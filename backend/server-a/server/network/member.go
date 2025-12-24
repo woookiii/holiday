@@ -8,7 +8,6 @@ import (
 )
 
 func memberRouter(n *Network) {
-	n.Router(GET, "/member/check-email/:email", n.checkEmail)
 	n.Router(POST, "/member/create", n.createMember)
 	n.Router(POST, "/member/login", n.login)
 }
@@ -51,14 +50,4 @@ func (n *Network) login(c *gin.Context) {
 		true,
 	)
 	res(c, http.StatusOK, map[string]any{"accessToken": t.AccessToken})
-}
-
-func (n *Network) checkEmail(c *gin.Context) {
-	email := c.Param("email")
-	ok, err := n.service.IsEmailValid(email)
-	if err != nil {
-		res(c, http.StatusBadRequest, err.Error())
-		return
-	}
-	res(c, http.StatusOK, ok)
 }
