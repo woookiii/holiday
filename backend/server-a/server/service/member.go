@@ -12,7 +12,6 @@ import (
 func (s *Service) CreateMember(req *dto.MemberSaveReq) (*entity.Member, error) {
 	i, err := s.repository.EmailExists(req.Email)
 	if err != nil {
-		log.Printf("fail to create member: %v", err)
 		return nil, err
 	}
 	if i {
@@ -26,9 +25,11 @@ func (s *Service) CreateMember(req *dto.MemberSaveReq) (*entity.Member, error) {
 	}
 	req.Password = string(hashedPassword)
 	secret, err := generateUserSecret()
+	if err != nil {
+		return nil, err
+	}
 	m, err := s.repository.SaveMember(req, secret)
 	if err != nil {
-		log.Printf("fail to create member: %v", err)
 		return nil, err
 	}
 
@@ -57,6 +58,9 @@ func (s *Service) Login(req *dto.MemberLoginReq) (*dto.Token, error) {
 		return nil, err
 	}
 	err = s.repository.SaveRefreshToken(m.Id, rt)
+	if err != nil {
+		return nil, err
+	}
 	t := &dto.Token{
 		AccessToken:  at,
 		RefreshToken: rt,

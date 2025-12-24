@@ -35,7 +35,7 @@ func (n *Network) sendCode(c *gin.Context) {
 
 func (n *Network) validateCode(c *gin.Context) {
 	var req dto.EmailValidateReq
-	err := c.ShouldBindJSON(req)
+	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return

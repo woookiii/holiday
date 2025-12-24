@@ -16,4 +16,5 @@ type Member struct {
 	CreatedTime time.Time  `db:"created_time" binding:"required"`
 	UpdatedTime time.Time  `db:"updated_time"`
 	DeletedTime time.Time  `db:"deleted_time"`
+	Code        string     `db:"code"`
 }

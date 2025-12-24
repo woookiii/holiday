@@ -20,9 +20,7 @@ func NewServer(cfg *config.Config) *Server {
 
 	n := network.NewNetwork(cfg, s)
 
-	go func() {
-		n.Start()
-	}()
+	n.Start()
 
 	return server
 }

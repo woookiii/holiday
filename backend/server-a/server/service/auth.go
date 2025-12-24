@@ -34,6 +34,7 @@ func (s *Service) generateUserQR(member *entity.Member) ([]byte, error) {
 func generateUserSecret() (string, error) {
 	bytes := make([]byte, 10) // 10 bytes, so it is 16 base32 chars
 	if _, err := rand.Read(bytes); err != nil {
+		log.Printf("fail to generate random byte: %v", err)
 		return "", err
 	}
 	secret := base32.StdEncoding.

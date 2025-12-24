@@ -3,7 +3,6 @@ package service
 import (
 	"os"
 	"server-a/config"
-	"server-a/server/dto"
 	"server-a/server/repository"
 
 	_ "github.com/joho/godotenv/autoload"

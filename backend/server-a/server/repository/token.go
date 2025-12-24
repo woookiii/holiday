@@ -22,8 +22,8 @@ func (r *Repository) FindTokenById(id gocql.UUID) (*dto.Token, error) {
 
 func (r *Repository) SaveRefreshToken(id gocql.UUID, rt string) error {
 	err := r.session.Query(
-		"UPDATE member_by_id SET refresh_token = ? using TTL ? WHERE id = ?",
-		rt, r.rtExp, id,
+		"UPDATE member_by_id USING TTL ? SET refresh_token = ? WHERE id = ?",
+		r.rtExp, rt, id,
 	).Exec()
 	if err != nil {
 		log.Printf("fail to save refresh token: %v", err)
