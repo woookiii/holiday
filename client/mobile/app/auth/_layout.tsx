@@ -5,8 +5,15 @@ export default function AuthLayout() {
     <Stack.Screen
       name="index"
       options={{
-        title:"로그인",
+        title:"",
         headerShown: false
+      }}
+    />
+    <Stack.Screen
+      name="phonenumber"
+      options={{
+        title:"Verify your phone number",
+        headerShown: true,
       }}
     />
   </Stack>;

@@ -7,7 +7,7 @@ export default function InitScreen() {
   return (
     <AuthRoute>
       <SafeAreaView>
-        <Text>로딩</Text>
+        <Text>loading</Text>
       </SafeAreaView>
     </AuthRoute>
   );
