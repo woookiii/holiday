@@ -5,7 +5,6 @@ export default function InitLayout() {
     <Stack.Screen
       name="index"
       options={{
-        title:"home",
         headerShown: false
       }}
     />
