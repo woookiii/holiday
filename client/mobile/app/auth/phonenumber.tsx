@@ -11,6 +11,8 @@ import {
   parsePhoneNumberFromString,
 } from "libphonenumber-js";
 import Toast from "react-native-toast-message";
+import { getAuth, signInWithPhoneNumber } from "firebase/auth";
+import { FIREBASE_AUTH, RECAPTCHA } from "@/firebaseConfig";
 
 interface FormValue {
   countryCode: CountryCode;
@@ -51,6 +53,7 @@ export default function PhonenumberScreen() {
 
     // wholeNumber is E.164 (e.g. +821012345678). Use this for Firebase.
     // TODO: connect firebase
+    signInWithPhoneNumber(FIREBASE_AUTH, wholeNumber, RECAPTCHA)
   };
 
   return (
