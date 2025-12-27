@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
-  KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { Controller, useFormContext } from "react-hook-form";
@@ -59,31 +56,7 @@ function buildCountryItems(): CountryItem[] {
 export default function CountryCodeBox() {
   const { control } = useFormContext<FormValue>();
   const [modalVisible, setModalVisible] = useState(false);
-  const [searchText, setSearchText] = useState("");
   const [allCountries] = useState<CountryItem[]>(() => buildCountryItems());
-  const [filteredCountries, setFilteredCountries] = useState<CountryItem[]>(
-    () => allCountries
-  );
-
-  useEffect(() => {
-    const q = searchText.trim().toLowerCase();
-    const digits = q.replace(/\D/g, "");
-
-    if (!q) {
-      setFilteredCountries(allCountries);
-      return;
-    }
-
-    setFilteredCountries(
-      allCountries.filter(
-        (c) =>
-          c.name.toLowerCase().includes(q) ||
-          c.cca2.toLowerCase().includes(q) ||
-          (digits ? c.callingCode.includes(digits) : false) ||
-          c.label.toLowerCase().includes(q)
-      )
-    );
-  }, [searchText, allCountries]);
 
   const openModal = () => {
     setModalVisible(true);
@@ -91,7 +64,6 @@ export default function CountryCodeBox() {
 
   const closeModal = () => {
     setModalVisible(false);
-    setSearchText("");
   };
 
   return (
@@ -131,45 +103,29 @@ export default function CountryCodeBox() {
             >
               <Pressable style={styles.backdrop} onPress={closeModal} />
 
-              <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
-                keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
-                style={styles.keyboardAvoider}
-              >
-                <View style={styles.picker}>
-                  <View style={styles.handle} />
+              <View style={styles.picker}>
+                <View style={styles.handle} />
 
-                  <TextInput
-                    value={searchText}
-                    onChangeText={setSearchText}
-                    placeholder="Search country"
-                    placeholderTextColor={colors.GRAY_500}
-                    style={styles.search}
-                    autoCorrect={false}
-                    autoCapitalize="none"
-                  />
-
-                  <ScrollView keyboardShouldPersistTaps="handled">
-                    {filteredCountries.map((c) => (
-                      <Pressable
-                        key={c.cca2}
-                        style={styles.row}
-                        onPress={() => {
-                          onChange(c.cca2);
-                          closeModal();
-                        }}
-                      >
-                        <Text style={styles.countryName} numberOfLines={1}>
-                          {c.name}
-                        </Text>
-                        <Text style={styles.countryCode} numberOfLines={1}>
-                          {c.label}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </ScrollView>
-                </View>
-              </KeyboardAvoidingView>
+                <ScrollView keyboardShouldPersistTaps="handled">
+                  {allCountries.map((c) => (
+                    <Pressable
+                      key={c.cca2}
+                      style={styles.row}
+                      onPress={() => {
+                        onChange(c.cca2);
+                        closeModal();
+                      }}
+                    >
+                      <Text style={styles.countryName} numberOfLines={1}>
+                        {c.name}
+                      </Text>
+                      <Text style={styles.countryCode} numberOfLines={1}>
+                        {c.label}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
             </Modal>
           </>
         );
@@ -219,15 +175,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.GRAY_200,
     marginBottom: 12,
   },
-  search: {
-    borderWidth: 1,
-    borderColor: colors.GRAY_200,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: colors.BLACK,
-    marginBottom: 12,
-  },
   row: {
     paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
@@ -245,9 +192,5 @@ const styles = StyleSheet.create({
   countryCode: {
     fontSize: 14,
     color: colors.GRAY_700,
-  },
-  keyboardAvoider: {
-    flex: 1,
-    justifyContent: "flex-end",
   },
 });
