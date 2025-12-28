@@ -12,6 +12,6 @@ type MemberLoginReq struct {
 }
 
 type Token struct {
-	AccessToken  string `json:"token"`
-	RefreshToken string `json:"refresh-token"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string
 }

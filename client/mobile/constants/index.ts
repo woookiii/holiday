@@ -1,4 +1,4 @@
-export const colors = {
+const colors = {
   WHITE: "#FFF",
   BLACK: "#000",
   GRAY_50: "#FCFCFC",
@@ -14,3 +14,10 @@ export const colors = {
   GREEN_300: "#388E3C",
   GREEN_600: "#1B5E20",
 };
+
+const queryKey = {
+  AUTH: "auth",
+  GET_ME: "getMe",
+}
+
+export {colors, queryKey}

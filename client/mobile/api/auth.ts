@@ -4,6 +4,8 @@ import { getSecureStore } from "@/util/secureStore";
 import { axiosInstance } from "@/api/axios";
 import { ConfirmationResult, UserCredential } from "@firebase/auth";
 import { Token } from "@/types";
+import { Profiler } from "node:inspector";
+import Profile = module
 
 async function requestOtpToFirebase(phoneNumber: string): Promise<ConfirmationResult> {
   return await signInWithPhoneNumber(FIREBASE_AUTH, phoneNumber, RECAPTCHA);
@@ -31,5 +33,11 @@ async function refreshAccessToken() {
   }
 }
 
+async function getMe() {
+  const { data } = await axiosInstance.get("/auth/me");
 
-export { requestOtpToFirebase, postPhoneOtpToFirebase, refreshAccessToken, postFirebaseTokenToServer };
+  return data;
+}
+
+
+export { requestOtpToFirebase, postPhoneOtpToFirebase, refreshAccessToken, postFirebaseTokenToServer, getMe };

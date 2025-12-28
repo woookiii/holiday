@@ -21,6 +21,6 @@ func (n *Network) refreshToken(c *gin.Context) {
 		res(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-	res(c, http.StatusOK, map[string]any{"accessToken": at})
+	res(c, http.StatusOK, at)
 
 }
