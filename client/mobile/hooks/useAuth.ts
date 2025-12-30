@@ -1,26 +1,30 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { router } from "expo-router";
 import Toast from "react-native-toast-message";
 import { saveSecureStore } from "@/util/secureStore";
 import { FirebaseError } from "@firebase/util";
-import { getMe, postFirebaseTokenToServer, postPhoneOtpToFirebase, requestOtpToFirebase } from "@/api/auth";
+import {
+  getMe,
+  postFirebaseTokenToServer,
+  postSmsOtpToFirebase,
+  requestSmsOtpToFirebase
+} from "@/api/auth";
 import { queryKey } from "@/constants";
 
 function useGetMe() {
-  const {data} = useQuery({
+  const { data } = useQuery({
     queryFn: getMe,
     queryKey: [queryKey.AUTH, queryKey.GET_ME]
   });
 
-  return { data }
+  return { data };
 }
 
-function useRequestOtp() {
+function useRequestSmsOtp() {
   return useMutation({
-    mutationFn: requestOtpToFirebase,
+    mutationFn: requestSmsOtpToFirebase,
     onSuccess: async (confirmationResult) => {
       await saveSecureStore("verificationId", confirmationResult.verificationId);
-      router.push("/auth/otp");
+      console.log("success to save verification Id")
     },
     onError: (error: FirebaseError) => {
       Toast.show({
@@ -31,29 +35,36 @@ function useRequestOtp() {
   });
 }
 
-function usePostPhoneOtp() {
+function usePostSmsOtp() {
   return useMutation({
-    mutationFn: postPhoneOtpToFirebase,
+    mutationFn: postSmsOtpToFirebase,
     onSuccess: async (data) => {
-      const firebaseToken = await data.user.getIdToken()
+      const firebaseToken = await data.user.getIdToken();
       const { accessToken } = await postFirebaseTokenToServer(firebaseToken);
       await saveSecureStore("accessToken", accessToken);
-      router.replace("/")
+    },
+    onError: (error: FirebaseError) => {
+      Toast.show({
+        type: "error",
+        text1: error.message
+      });
     }
   });
 }
 
 function useAuth() {
-  const requestOtpMutation = useRequestOtp();
-  const postPhoneOtpMutation = usePostPhoneOtp();
+  // const { data } = useGetMe();
+  const requestSmsOtpMutation = useRequestSmsOtp();
+  const postSmsOtpMutation = usePostSmsOtp();
 
 
   return {
     auth: {
-      id: null
+      id: //data?.id ||
+        ""
     },
-    requestOtpMutation,
-    postPhoneOtpMutation,
+    requestSmsOtpMutation,
+    postSmsOtpMutation
   };
 }
 

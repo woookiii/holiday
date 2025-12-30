@@ -1,17 +1,16 @@
 import { PhoneAuthProvider, signInWithCredential, signInWithPhoneNumber } from "firebase/auth";
-import { FIREBASE_AUTH, RECAPTCHA } from "@/firebaseConfig";
+import { FIREBASE_AUTH } from "@/firebaseConfig";
 import { getSecureStore } from "@/util/secureStore";
 import { axiosInstance } from "@/api/axios";
 import { ConfirmationResult, UserCredential } from "@firebase/auth";
 import { Token } from "@/types";
-import { Profiler } from "node:inspector";
-import Profile = module
 
-async function requestOtpToFirebase(phoneNumber: string): Promise<ConfirmationResult> {
-  return await signInWithPhoneNumber(FIREBASE_AUTH, phoneNumber, RECAPTCHA);
+async function requestSmsOtpToFirebase(phoneNumber: string): Promise<ConfirmationResult> {
+
+  return await signInWithPhoneNumber(FIREBASE_AUTH, phoneNumber);
 }
 
-async function postPhoneOtpToFirebase(otp: string): Promise<UserCredential> {
+async function postSmsOtpToFirebase(otp: string): Promise<UserCredential> {
   const verificationId = await getSecureStore("verificationId");
   if (!verificationId) throw new Error("No verificationId found");
   const credential = PhoneAuthProvider.credential(verificationId, otp);
@@ -40,4 +39,4 @@ async function getMe() {
 }
 
 
-export { requestOtpToFirebase, postPhoneOtpToFirebase, refreshAccessToken, postFirebaseTokenToServer, getMe };
+export { requestSmsOtpToFirebase, postSmsOtpToFirebase, refreshAccessToken, postFirebaseTokenToServer, getMe };

@@ -11,8 +11,8 @@ import {
   parsePhoneNumberFromString,
 } from "libphonenumber-js";
 import Toast from "react-native-toast-message";
-import { getAuth, signInWithPhoneNumber } from "firebase/auth";
-import { FIREBASE_AUTH, RECAPTCHA } from "@/firebaseConfig";
+import { useAuth } from "@/hooks/useAuth";
+import { router } from "expo-router";
 
 interface FormValue {
   countryCode: CountryCode;
@@ -26,6 +26,8 @@ export default function PhonenumberScreen() {
       phoneNumber: "",
     },
   });
+
+  const {requestSmsOtpMutation} = useAuth();
 
   const onSubmit = (formValues: FormValue) => {
     const { countryCode, phoneNumber } = formValues;
@@ -50,10 +52,11 @@ export default function PhonenumberScreen() {
       });
       return;
     }
-
-    // wholeNumber is E.164 (e.g. +821012345678). Use this for Firebase.
-    // TODO: connect firebase
-    signInWithPhoneNumber(FIREBASE_AUTH, wholeNumber, RECAPTCHA)
+    requestSmsOtpMutation.mutate(wholeNumber, {
+      onSuccess: () => {
+        router.push("/auth/otp/sms");
+      }
+    })
   };
 
   return (
