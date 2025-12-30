@@ -12,8 +12,9 @@
       "googleServicesFile": "./GoogleService-Info.plist",
       "bundleIdentifier": "com.xcecv.mobile",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false,
-        "NSAllowsArbitraryLoads": true
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
       }
     },
     "android": {
