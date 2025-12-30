@@ -7,8 +7,10 @@ import {
   PhoneAuthProvider, signInWithCredential,
   signInWithPhoneNumber
 } from "@react-native-firebase/auth";
+import { getApp } from "@react-native-firebase/app";
 
-const authInstance = getAuth();
+const appInstance = getApp();
+const authInstance = getAuth(appInstance);
 
 async function requestSmsOtpToFirebase(phoneNumber: string): Promise<FirebaseAuthTypes.ConfirmationResult> {
   return await signInWithPhoneNumber(authInstance, phoneNumber);
@@ -26,15 +28,6 @@ async function postFirebaseTokenToServer(firebaseToken: string): Promise<Token> 
   return data;
 }
 
-async function refreshAccessToken() {
-  try {
-    const res = await axiosInstance.post("/auth/refresh-token");
-    return res.data;
-  } catch (err: any) {
-    const message = err.response?.data?.message || "Failed to refresh access token";
-    throw new Error(message);
-  }
-}
 
 async function getMe() {
   const { data } = await axiosInstance.get("/auth/me");
@@ -43,4 +36,4 @@ async function getMe() {
 }
 
 
-export { requestSmsOtpToFirebase, postSmsOtpToFirebase, refreshAccessToken, postFirebaseTokenToServer, getMe };
+export { requestSmsOtpToFirebase, postSmsOtpToFirebase, postFirebaseTokenToServer, getMe };
