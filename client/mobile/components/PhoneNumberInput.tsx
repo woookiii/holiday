@@ -1,6 +1,6 @@
 import React from "react";
-import {StyleSheet, View, type StyleProp, type ViewStyle} from "react-native";
-import {Controller, useFormContext} from "react-hook-form";
+import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
+import { Controller, useFormContext } from "react-hook-form";
 import InputField from "@/components/InputField";
 
 type FormValue = {
@@ -14,8 +14,8 @@ type PhoneNumberInputProps = {
 };
 
 export default function PhoneNumberInput(props: PhoneNumberInputProps) {
-  const {containerStyle} = props;
-  const {control} = useFormContext<FormValue>();
+  const { containerStyle } = props;
+  const { control } = useFormContext<FormValue>();
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -24,9 +24,9 @@ export default function PhoneNumberInput(props: PhoneNumberInputProps) {
         control={control}
         defaultValue=""
         rules={{
-          required: "Phone number is required",
+          required: "Phone number is required"
         }}
-        render={({field: {onChange, onBlur, value}, fieldState}) => (
+        render={({ field: { onChange, onBlur, value }, fieldState }) => (
           <InputField
             value={value}
             onBlur={onBlur}
@@ -39,6 +39,8 @@ export default function PhoneNumberInput(props: PhoneNumberInputProps) {
             placeholder="Phone number"
             variant="standard"
             error={fieldState.error?.message}
+            submitBehavior="blurAndSubmit"
+            returnKeyType="done"
           />
         )}
       />
@@ -49,6 +51,6 @@ export default function PhoneNumberInput(props: PhoneNumberInputProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    minHeight: 44,
-  },
+    minHeight: 44
+  }
 });

@@ -1,25 +1,29 @@
-import { PhoneAuthProvider, signInWithCredential, signInWithPhoneNumber } from "firebase/auth";
-import { FIREBASE_AUTH } from "@/firebaseConfig";
 import { getSecureStore } from "@/util/secureStore";
 import { axiosInstance } from "@/api/axios";
-import { ConfirmationResult, UserCredential } from "@firebase/auth";
 import { Token } from "@/types";
+import {
+  FirebaseAuthTypes,
+  getAuth,
+  PhoneAuthProvider, signInWithCredential,
+  signInWithPhoneNumber
+} from "@react-native-firebase/auth";
 
-async function requestSmsOtpToFirebase(phoneNumber: string): Promise<ConfirmationResult> {
+const authInstance = getAuth();
 
-  return await signInWithPhoneNumber(FIREBASE_AUTH, phoneNumber);
+async function requestSmsOtpToFirebase(phoneNumber: string): Promise<FirebaseAuthTypes.ConfirmationResult> {
+  return await signInWithPhoneNumber(authInstance, phoneNumber);
 }
 
-async function postSmsOtpToFirebase(otp: string): Promise<UserCredential> {
+async function postSmsOtpToFirebase(otp: string): Promise<FirebaseAuthTypes.UserCredential> {
   const verificationId = await getSecureStore("verificationId");
   if (!verificationId) throw new Error("No verificationId found");
   const credential = PhoneAuthProvider.credential(verificationId, otp);
-  return await signInWithCredential(FIREBASE_AUTH, credential);
+  return signInWithCredential(authInstance, credential);
 }
 
 async function postFirebaseTokenToServer(firebaseToken: string): Promise<Token> {
-  const { data } = await axiosInstance.post("/auth/firebase-token",firebaseToken)
-  return data
+  const { data } = await axiosInstance.post("/auth/firebase-token", firebaseToken);
+  return data;
 }
 
 async function refreshAccessToken() {

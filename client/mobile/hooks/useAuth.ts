@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Toast from "react-native-toast-message";
 import { saveSecureStore } from "@/util/secureStore";
-import { FirebaseError } from "@firebase/util";
 import {
   getMe,
   postFirebaseTokenToServer,
@@ -9,6 +8,7 @@ import {
   requestSmsOtpToFirebase
 } from "@/api/auth";
 import { queryKey } from "@/constants";
+import { FirebaseAuthTypes } from "@react-native-firebase/auth";
 
 function useGetMe() {
   const { data } = useQuery({
@@ -23,10 +23,19 @@ function useRequestSmsOtp() {
   return useMutation({
     mutationFn: requestSmsOtpToFirebase,
     onSuccess: async (confirmationResult) => {
-      await saveSecureStore("verificationId", confirmationResult.verificationId);
-      console.log("success to save verification Id")
+      const verificationId = confirmationResult.verificationId;
+
+      if (!verificationId) {
+        Toast.show({
+          type: "error",
+          text1: "fail to request sms"
+        });
+        return;
+      }
+      await saveSecureStore("verificationId", verificationId);
+      console.log("success to save verification Id");
     },
-    onError: (error: FirebaseError) => {
+    onError: (error: FirebaseAuthTypes.NativeFirebaseAuthError) => {
       Toast.show({
         type: "error",
         text1: error.message
@@ -43,7 +52,7 @@ function usePostSmsOtp() {
       const { accessToken } = await postFirebaseTokenToServer(firebaseToken);
       await saveSecureStore("accessToken", accessToken);
     },
-    onError: (error: FirebaseError) => {
+    onError: (error: FirebaseAuthTypes.NativeFirebaseAuthError) => {
       Toast.show({
         type: "error",
         text1: error.message
