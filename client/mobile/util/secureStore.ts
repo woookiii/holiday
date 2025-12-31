@@ -1,11 +1,13 @@
 import { deleteItemAsync, getItemAsync, setItemAsync } from "expo-secure-store";
+import Toast from "react-native-toast-message";
 
-async function saveSecureStore(key: string, value: string) {
+async function saveSecureStore(key: string, value: string): Promise<void> {
   await setItemAsync(key, value);
 }
 
 async function getSecureStore(key: string) {
-  return await getItemAsync(key);
+  const value = await getItemAsync(key);
+  return value;
 }
 
 async function deleteSecureStore(key: string) {

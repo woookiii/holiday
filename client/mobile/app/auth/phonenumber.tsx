@@ -1,6 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors } from "@/constants";
+import { colors, time } from "@/constants";
 import FixedBottomCTA from "@/components/FixedBottomCTA";
 import CountryCodeBox from "@/components/CountryCodeBox";
 import PhoneNumberInput from "@/components/PhoneNumberInput";
@@ -8,11 +8,12 @@ import { FormProvider, useForm } from "react-hook-form";
 import {
   CountryCode,
   isValidPhoneNumber,
-  parsePhoneNumberFromString,
+  parsePhoneNumberFromString
 } from "libphonenumber-js";
 import Toast from "react-native-toast-message";
 import { useAuth } from "@/hooks/useAuth";
 import { router } from "expo-router";
+import { getSecureStore, saveSecureStore } from "@/util/secureStore";
 
 interface FormValue {
   countryCode: CountryCode;
@@ -23,21 +24,33 @@ export default function PhonenumberScreen() {
   const phoneNumberForm = useForm<FormValue>({
     defaultValues: {
       countryCode: "KR",
-      phoneNumber: "",
-    },
+      phoneNumber: ""
+    }
   });
 
-  const {requestSmsOtpMutation} = useAuth();
+  const { requestSmsOtpMutation } = useAuth();
 
-  const onSubmit = (formValues: FormValue) => {
+  const onSubmit = async (formValues: FormValue) => {
+    const s = await getSecureStore("timeSmsLastSent");
+    const t = s ? Number(s) : 0;
+    if (Date.now() - t <= time.TEN_MINUTES) {
+      Toast.show({
+        type: "info",
+        text1: "Please wait",
+        text2: "You can request another code in a few minutes."
+      });
+      return;
+    }
+
     const { countryCode, phoneNumber } = formValues;
 
     const digitsOnly = phoneNumber.replace(/[^\d]/g, "");
 
     if (!isValidPhoneNumber(digitsOnly, countryCode)) {
+
       Toast.show({
         type: "error",
-        text1: "Invalid phone number",
+        text1: "Invalid phone number"
       });
       return;
     }
@@ -46,17 +59,27 @@ export default function PhonenumberScreen() {
     const wholeNumber = parsed?.number;
 
     if (!wholeNumber) {
+      console.log("fail to parse number");
       Toast.show({
         type: "error",
-        text1: "Invalid phone number",
+        text1: "Invalid phone number"
       });
       return;
     }
+
+    console.log("execute mutate");
     requestSmsOtpMutation.mutate(wholeNumber, {
-      onSuccess: () => {
+      onSuccess: async () => {
+        await saveSecureStore("timeSmsLastSent", String(Date.now()));
         router.push("/auth/otp/sms");
+      },
+      onError: (error) => {
+        Toast.show({
+          type: "error",
+          text1: error.message
+        });
       }
-    })
+    });
   };
 
   return (
@@ -68,10 +91,10 @@ export default function PhonenumberScreen() {
             <PhoneNumberInput />
           </View>
         </View>
-
         <FixedBottomCTA
           label={"Send Code"}
           onPress={phoneNumberForm.handleSubmit(onSubmit)}
+          disabled={requestSmsOtpMutation.isPending}
         />
       </FormProvider>
     </SafeAreaView>
@@ -81,18 +104,18 @@ export default function PhonenumberScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.WHITE,
+    backgroundColor: colors.WHITE
   },
   content: {
     flex: 1,
     width: "100%",
     paddingHorizontal: 20,
-    paddingTop: 120,
+    paddingTop: 120
   },
   phoneRow: {
     flexDirection: "row",
     width: "100%",
     alignItems: "center",
-    gap: 10,
-  },
+    gap: 10
+  }
 });

@@ -1,19 +1,27 @@
 import { Stack } from "expo-router";
 
 export default function AuthLayout() {
+
   return <Stack>
     <Stack.Screen
       name="index"
       options={{
-        title:"",
+        title: "",
         headerShown: false
       }}
     />
     <Stack.Screen
       name="phonenumber"
       options={{
-        title:"Verify your phone number",
-        headerShown: true,
+        title: "Verify your phone number",
+        headerShown: true
+      }}
+    />
+    <Stack.Screen
+      name="otp/sms"
+      options={{
+        title: "Verify your OTP",
+        headerShown: true
       }}
     />
   </Stack>;

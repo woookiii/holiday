@@ -12,12 +12,16 @@ const colors = {
   GREEN_100: "#388E3C",
   GREEN_200: "#2E7D32",
   GREEN_300: "#388E3C",
-  GREEN_600: "#1B5E20",
+  GREEN_600: "#1B5E20"
 };
 
 const queryKey = {
   AUTH: "auth",
-  GET_ME: "getMe",
-}
+  GET_ME: "getMe"
+};
 
-export {colors, queryKey}
+const time = {
+  TEN_MINUTES: 10 * 60 * 1000
+};
+
+export { colors, queryKey, time };

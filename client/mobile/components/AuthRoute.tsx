@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { router, useFocusEffect } from "expo-router";
-import {useAuth} from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AuthRouteProps {
   children: ReactNode;
@@ -11,7 +11,7 @@ export default function AuthRoute({ children }: AuthRouteProps) {
 
   useFocusEffect(() => {
     !auth.id && router.replace("/auth");
-    auth.id && router.replace("/home")
+    auth.id && router.replace("/home");
   });
   return <>{children}</>;
 }

@@ -1,7 +1,6 @@
 import axios from "axios";
 import { getSecureStore, saveSecureStore } from "@/util/secureStore";
 import { Platform } from "react-native";
-import { refreshAccessToken } from "@/api/auth";
 
 const baseUrl = {
   android: "http://10.0.2.2:8080",
@@ -16,6 +15,7 @@ const axiosInstance = axios.create({
   }
 });
 
+//circular import warning is annoying and it is here
 async function refreshAccessToken() {
   try {
     const res = await axiosInstance.post("/auth/refresh-token");
