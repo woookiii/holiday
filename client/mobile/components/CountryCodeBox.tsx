@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Controller, useFormContext } from "react-hook-form";
 import { CountryCode, getCountryCallingCode } from "libphonenumber-js";
+import { Alpha2Code } from "i18n-iso-countries";
 import { colors } from "@/constants";
 import { getLocales } from "expo-localization";
 
@@ -28,6 +29,13 @@ function buildCountryItems(): CountryItem[] {
   countries.registerLocale(require("i18n-iso-countries/langs/en.json"));
 
   const names = countries.getNames("en", { select: "official" });
+  delete names["AQ"];
+  delete names["BV"];
+  delete names["GS"];
+  delete names["HM"];
+  delete names["TF"];
+  delete names["UM"];
+  delete names["PN"];
 
   const items: CountryItem[] = [];
 

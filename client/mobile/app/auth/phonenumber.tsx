@@ -8,7 +8,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import {
   CountryCode,
   isValidPhoneNumber,
-  parsePhoneNumberFromString
+  parsePhoneNumberFromString,
 } from "libphonenumber-js";
 import Toast from "react-native-toast-message";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,8 +24,8 @@ export default function PhonenumberScreen() {
   const phoneNumberForm = useForm<FormValue>({
     defaultValues: {
       countryCode: "KR",
-      phoneNumber: ""
-    }
+      phoneNumber: "",
+    },
   });
 
   const { requestSmsOtpMutation } = useAuth();
@@ -38,32 +38,30 @@ export default function PhonenumberScreen() {
       Toast.show({
         type: "info",
         text1: "Please wait",
-        text2: "You can request another code in a few minutes."
+        text2: "You can request another code in a few minutes.",
       });
       return;
     }
 
     const { countryCode, phoneNumber } = formValues;
-
     const digitsOnly = phoneNumber.replace(/[^\d]/g, "");
-
     if (!isValidPhoneNumber(digitsOnly, countryCode)) {
-
       Toast.show({
         type: "error",
-        text1: "Invalid phone number"
+        text1: "Invalid phone number",
       });
       return;
     }
 
     const parsed = parsePhoneNumberFromString(digitsOnly, countryCode);
     const wholeNumber = parsed?.number;
+    console.log("wholeNumber: ", wholeNumber);
 
     if (!wholeNumber) {
       console.log("fail to parse number");
       Toast.show({
         type: "error",
-        text1: "Invalid phone number"
+        text1: "Invalid phone number",
       });
       return;
     }
@@ -77,9 +75,9 @@ export default function PhonenumberScreen() {
       onError: (error) => {
         Toast.show({
           type: "error",
-          text1: error.message
+          text1: error.message,
         });
-      }
+      },
     });
   };
 
@@ -105,18 +103,18 @@ export default function PhonenumberScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.WHITE
+    backgroundColor: colors.WHITE,
   },
   content: {
     flex: 1,
     width: "100%",
     paddingHorizontal: 20,
-    paddingTop: 120
+    paddingTop: 120,
   },
   phoneRow: {
     flexDirection: "row",
     width: "100%",
     alignItems: "center",
-    gap: 10
-  }
+    gap: 10,
+  },
 });

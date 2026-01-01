@@ -18,9 +18,10 @@ export default function SmsCodeInput() {
       }}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <InputField
+          style={styles.text}
           autoFocus
-          label="sms code"
-          placeholder="0000000"
+          label=""
+          placeholder=""
           returnKeyType="done"
           submitBehavior="submit"
           value={value}
@@ -31,3 +32,9 @@ export default function SmsCodeInput() {
     />
   );
 }
+
+const styles = StyleSheet.create({
+  text: {
+    textAlign: "center",
+  },
+});
