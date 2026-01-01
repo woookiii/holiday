@@ -8,7 +8,7 @@ interface FixedBottomCTAProps extends Omit<PressableProps, "style"> {
   label: string;
 }
 
-function FixedBottomCTA({ label, onPress, ...props }: FixedBottomCTAProps) {
+function FixedBottomCTA({ label, ...props }: FixedBottomCTAProps) {
   const inset = useSafeAreaInsets();
 
   return (

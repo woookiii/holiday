@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
 import InputField from "@/components/InputField";
 
 type FormValue = {
@@ -24,7 +24,11 @@ export default function PhoneNumberInput(props: PhoneNumberInputProps) {
         control={control}
         defaultValue=""
         rules={{
-          required: "Phone number is required"
+          validate: (data: string) => {
+            if (data.length <= 0) {
+              return "Put your Phone Number";
+            }
+          },
         }}
         render={({ field: { onChange, onBlur, value }, fieldState }) => (
           <InputField
@@ -51,6 +55,6 @@ export default function PhoneNumberInput(props: PhoneNumberInputProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    minHeight: 44
-  }
+    minHeight: 44,
+  },
 });

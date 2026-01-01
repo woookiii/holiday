@@ -8,45 +8,33 @@ import {
   View,
 } from "react-native";
 import { Controller, useFormContext } from "react-hook-form";
-import countries from "i18n-iso-countries";
-import enLocale from "i18n-iso-countries/langs/en.json";
-import {
-  CountryCode as LibCountryCode,
-  getCountryCallingCode,
-} from "libphonenumber-js";
+import { CountryCode, getCountryCallingCode } from "libphonenumber-js";
 import { colors } from "@/constants";
-
-countries.registerLocale(enLocale);
+import { getLocales } from "expo-localization";
 
 type FormValue = {
-  countryCode: LibCountryCode;
+  countryCode: string;
   phoneNumber: string;
 };
 
 type CountryItem = {
-  cca2: LibCountryCode;
+  cca2: string;
   name: string;
-  callingCode: string;
   label: string;
 };
 
 function buildCountryItems(): CountryItem[] {
-  const names = countries.getNames("en", { select: "official" }) as Record<
-    string,
-    string
-  >;
+  const countries = require("i18n-iso-countries");
+  countries.registerLocale(require("i18n-iso-countries/langs/en.json"));
+
+  const names = countries.getNames("en", { select: "official" });
 
   const items: CountryItem[] = [];
 
-  for (const [cca2Raw, name] of Object.entries(names)) {
-    const cca2 = cca2Raw as LibCountryCode;
-    try {
-      const callingCode = getCountryCallingCode(cca2);
-      const label = `+${callingCode}`;
-      items.push({ cca2, name, callingCode, label });
-    } catch {
-      // Some entries may not be supported by libphonenumber-js; skip them.
-    }
+  for (const [cca2, name] of Object.entries<string>(names)) {
+    const callingCode = getCountryCallingCode(cca2 as CountryCode);
+    const label = `+${callingCode}`;
+    items.push({ cca2, name, label });
   }
 
   items.sort((a, b) => a.name.localeCompare(b.name));
@@ -70,26 +58,15 @@ export default function CountryCodeBox() {
     <Controller
       name="countryCode"
       control={control}
-      defaultValue={"KR" as LibCountryCode}
+      defaultValue={"KR"}
       render={({ field: { onChange, value } }) => {
         const selected = allCountries.find((c) => c.cca2 === value);
         const display =
           selected?.label ??
-          `+${(() => {
-            try {
-              return getCountryCallingCode((value || "KR") as LibCountryCode);
-            } catch {
-              return "";
-            }
-          })()}`;
-
+          `+${getCountryCallingCode(getLocales()[0].regionCode as CountryCode) || 82}`;
         return (
           <>
-            <Pressable
-              accessibilityRole="button"
-              onPress={openModal}
-              style={styles.box}
-            >
+            <Pressable onPress={openModal} style={styles.box}>
               <Text style={styles.boxText} numberOfLines={1}>
                 {display}
               </Text>
@@ -106,10 +83,10 @@ export default function CountryCodeBox() {
               <View style={styles.picker}>
                 <View style={styles.handle} />
 
-                <ScrollView keyboardShouldPersistTaps="handled">
-                  {allCountries.map((c) => (
+                <ScrollView>
+                  {allCountries.map((c, index) => (
                     <Pressable
-                      key={c.cca2}
+                      key={index}
                       style={styles.row}
                       onPress={() => {
                         onChange(c.cca2);

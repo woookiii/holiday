@@ -31,6 +31,7 @@ export default function PhonenumberScreen() {
   const { requestSmsOtpMutation } = useAuth();
 
   const onSubmit = async (formValues: FormValue) => {
+    console.log("start submit");
     const s = await getSecureStore("timeSmsLastSent");
     const t = s ? Number(s) : 0;
     if (Date.now() - t <= time.TEN_MINUTES) {

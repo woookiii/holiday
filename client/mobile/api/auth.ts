@@ -2,17 +2,14 @@ import { axiosInstance } from "@/api/axios";
 import { Token } from "@/types";
 
 
-async function requestSmsOtpToFirebase(
-  phoneNumber: string
-): Promise<void> {
+async function requestSmsOtpToFirebase(phoneNumber: string) {
+  return Promise.resolve("good");
 }
 
-async function postSmsOtpToFirebase(
-  otp: string
-): Promise<void> {
+async function postSmsOtpToFirebase(otp: string) {
 }
 
-async function postFirebaseTokenToServer(firebaseToken: string): Promise<Token> {
+async function postFirebaseTokenToServer(firebaseToken: string) {
   const { data } = await axiosInstance.post("/auth/firebase-token", firebaseToken);
   return data;
 }
