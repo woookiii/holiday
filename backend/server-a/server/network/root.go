@@ -26,6 +26,7 @@ func NewNetwork(cfg *config.Config, s *service.Service) *Network {
 	emailRouter(n)
 	memberRouter(n)
 	tokenRouter(n)
+	smsRouter(n)
 
 	return n
 }
