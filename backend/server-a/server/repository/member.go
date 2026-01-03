@@ -9,23 +9,22 @@ import (
 	"github.com/apache/cassandra-gocql-driver/v2"
 )
 
-func (r *Repository) SaveMember(req *dto.MemberSaveReq, secret string) (*entity.Member, error) {
-	id := gocql.TimeUUID()
+func (r *Repository) SaveMember(req *dto.MemberSaveReq, id, verificationId gocql.UUID, secret string) error {
 	err := r.session.Batch(gocql.LoggedBatch).
 		Query(
-			"INSERT INTO member_by_email (id, name, email, password, secret, role, created_time) VALUES (?, ?, ?, ?, ?, ?, ?);",
-			id, req.Name, req.Email, req.Password, secret, "user", time.Now(),
+			"INSERT INTO member_by_email (verification_id, is_email_verified, is_phone_number_verified, id, email, password, secret, role, created_time) VALUES (?, ?, ?, ?, ?, ?, ?);",
+			verificationId, false, false, id, req.Email, req.Password, secret, "user", time.Now(),
 		).
 		Query(
-			"INSERT INTO member_by_id (id, name, email, password, secret, role, created_time) VALUES (?, ?, ?, ?, ?, ?, ?)",
-			id, req.Name, req.Email, req.Password, secret, "user", time.Now(),
+			"INSERT INTO member_by_id (verification_id, is_email_verified, is_phone_number_verified, id, email, password, secret, role, created_time) VALUES (?, ?, ?, ?, ?, ?, ?)",
+			verificationId, false, false, id, req.Email, req.Password, secret, "user", time.Now(),
 		).
 		Exec()
 	if err != nil {
 		log.Printf("fail to save member: %v", err)
-		return nil, err
+		return err
 	}
-	return &entity.Member{Id: id}, err
+	return err
 }
 
 func (r *Repository) EmailExists(email string) (bool, error) {
@@ -44,12 +43,12 @@ func (r *Repository) EmailExists(email string) (bool, error) {
 	return true, nil
 }
 
-func (r *Repository) FindIdPasswordRoleByEmail(email string) (*entity.Member, error) {
+func (r *Repository) FindLoginInfoByEmail(email string) (*entity.Member, error) {
 	var m entity.Member
 	err := r.session.Query(
-		"SELECT id, password, role FROM member_by_email WHERE email = ?",
+		"SELECT is_email_verified, is_phone_number_verified, id, password, role FROM member_by_email WHERE email = ?",
 		email,
-	).Scan(&m.Id, &m.Password, &m.Role)
+	).Scan(&m.VerificationId, &m.Id, &m.Password, &m.Role)
 	if err != nil {
 		log.Printf("fail to find by email: %v", err)
 		return nil, err

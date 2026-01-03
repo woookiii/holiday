@@ -8,14 +8,19 @@ import (
 )
 
 func emailRouter(n *Network) {
-	n.Router(GET, "/email/check/:email", n.checkEmail)
-	n.Router(POST, "/email/send-code/:email", n.sendCode)
-	n.Router(POST, "/email/validate-code", n.validateCode)
+	n.Router(GET, "/email/check", n.checkEmail)
+	n.Router(POST, "/email/otp/send", n.sendEmailOTP)
+	n.Router(POST, "/email/otp/verify", n.verifyEmailOTP)
 }
 
 func (n *Network) checkEmail(c *gin.Context) {
-	email := c.Param("email")
-	ok, err := n.service.IsEmailUsable(email)
+	var req dto.EmailReq
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		res(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	ok, err := n.service.IsEmailUsable(&req)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return
@@ -23,24 +28,29 @@ func (n *Network) checkEmail(c *gin.Context) {
 	res(c, http.StatusOK, ok)
 }
 
-func (n *Network) sendCode(c *gin.Context) {
-	email := c.Param("email")
-	err := n.service.SendEmailVerifyCode(email)
-	if err != nil {
-		res(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-	res(c, http.StatusOK, "ok")
-}
-
-func (n *Network) validateCode(c *gin.Context) {
-	var req dto.EmailValidateReq
+func (n *Network) sendEmailOTP(c *gin.Context) {
+	var req dto.EmailReq
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = n.service.ValidateEmailVerifyCode(&req)
+	m, err := n.service.SendEmailOTP(&req)
+	if err != nil {
+		res(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	res(c, http.StatusOK, m)
+}
+
+func (n *Network) verifyEmailOTP(c *gin.Context) {
+	var req dto.EmailOtpVerifyReq
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		res(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	err = n.service.VerifyEmailOTP(&req)
 	if err != nil {
 		res(c, http.StatusUnauthorized, err.Error())
 		return

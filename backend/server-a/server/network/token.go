@@ -11,16 +11,16 @@ func tokenRouter(n *Network) {
 }
 
 func (n *Network) refreshToken(c *gin.Context) {
-	rt, err := c.Request.Cookie("refresh-token")
+	rt, err := c.Request.Cookie("refresh_token")
 	if err != nil {
 		res(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-	at, err := n.service.GenerateAccessToken(rt.Value)
+	result, err := n.service.GenerateAccessToken(rt.Value)
 	if err != nil {
 		res(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-	res(c, http.StatusOK, at)
+	res(c, http.StatusOK, result)
 
 }

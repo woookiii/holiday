@@ -2,12 +2,11 @@ package repository
 
 import (
 	"log"
-	"server-a/server/dto"
 
 	gocql "github.com/apache/cassandra-gocql-driver/v2"
 )
 
-func (r *Repository) FindTokenById(id gocql.UUID) (*dto.Token, error) {
+func (r *Repository) FindTokenById(id gocql.UUID) (string /*refreshToken*/, error) {
 	var rt string
 	err := r.session.Query(
 		"SELECT refresh_token from member_by_id WHERE id = ?",
@@ -15,9 +14,9 @@ func (r *Repository) FindTokenById(id gocql.UUID) (*dto.Token, error) {
 	).Scan(&rt)
 	if err != nil {
 		log.Printf("fail to get refresh token: %v", err)
-		return nil, err
+		return "", err
 	}
-	return &dto.Token{RefreshToken: rt}, nil
+	return rt, nil
 }
 
 func (r *Repository) SaveRefreshToken(id gocql.UUID, rt string) error {

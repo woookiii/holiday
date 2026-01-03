@@ -3,13 +3,14 @@ package service
 import (
 	"errors"
 	"log"
+	"log/slog"
 	"server-a/server/dto"
-	"server-a/server/entity"
 
+	gocql "github.com/apache/cassandra-gocql-driver/v2"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *Service) CreateMember(req *dto.MemberSaveReq) (*entity.Member, error) {
+func (s *Service) CreateMember(req *dto.MemberSaveReq) (*dto.OtpResp, error) {
 	i, err := s.repository.EmailExists(req.Email)
 	if err != nil {
 		return nil, err
@@ -28,42 +29,53 @@ func (s *Service) CreateMember(req *dto.MemberSaveReq) (*entity.Member, error) {
 	if err != nil {
 		return nil, err
 	}
-	m, err := s.repository.SaveMember(req, secret)
+	id := gocql.TimeUUID()
+	verificationId := gocql.TimeUUID()
+	err = s.repository.SaveMember(req, id, verificationId, secret)
 	if err != nil {
 		return nil, err
 	}
 
-	return m, nil
+	return &dto.OtpResp{VerificationId: verificationId.String()}, nil
 }
 
-func (s *Service) Login(req *dto.MemberLoginReq) (*dto.Token, error) {
-	m, err := s.repository.FindIdPasswordRoleByEmail(req.Email)
+func (s *Service) LoginWithEmail(req *dto.MemberLoginReq) (*dto.EmailLoginResp, string /*refreshToken*/, error) {
+	m, err := s.repository.FindLoginInfoByEmail(req.Email)
 	if err != nil {
-		log.Printf("fail to login - email: %v, err: %v", req.Email, err)
-		return nil, err
+		slog.Info("fail to login with email", req.Email, err)
+		return nil, "", err
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(m.Password), []byte(req.Password))
 	if err != nil {
-		log.Printf("invalid password: %v, err: %v", req.Password, err)
-		return nil, err
+		slog.Info("invalid password", req.Password, err)
+		return nil, "", err
+	}
+	if !m.IsEmailVerified {
+		resp := dto.EmailLoginResp{}
+		return &resp, "", nil
+	}
+	if !m.IsPhoneNumberVerified {
+		resp := dto.EmailLoginResp{
+			IsEmailVerified: m.IsEmailVerified,
+		}
+		return &resp, "", nil
 	}
 	at, err := createToken(m.Id.String(), m.Role, s.secretKeyAT, s.aTExp)
 	if err != nil {
-		log.Printf("fail to create access token: %v", err)
-		return nil, err
+		slog.Error("fail to create access token", err)
+		return nil, "", err
 	}
 	rt, err := createToken(m.Id.String(), m.Role, s.secretKeyRT, s.rTExp)
 	if err != nil {
-		log.Printf("fail to create refresh token: %v", err)
-		return nil, err
+		slog.Error("fail to create refresh token", err)
+		return nil, "", err
 	}
 	err = s.repository.SaveRefreshToken(m.Id, rt)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
-	t := &dto.Token{
-		AccessToken:  at,
-		RefreshToken: rt,
+	resp := dto.EmailLoginResp{
+		AccessToken: at,
 	}
-	return t, nil
+	return &resp, rt, nil
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func (s *Service) GenerateAccessToken(refreshToken string) (*dto.Token, error) {
+func (s *Service) GenerateAccessToken(refreshToken string) (*dto.TokenRefreshResp, error) {
 	rt, err := jwt.Parse(refreshToken, s.keyFunc)
 	if err != nil {
 		log.Printf("fail to parse token: %v", err)
@@ -30,15 +30,15 @@ func (s *Service) GenerateAccessToken(refreshToken string) (*dto.Token, error) {
 	if err != nil {
 		log.Printf("fail to parse gocql uuid from id: %v", err)
 	}
-	tokenInDB, err := s.repository.FindTokenById(uuid)
+	rtInDB, err := s.repository.FindTokenById(uuid)
 	if err != nil {
 		log.Printf("fail to find token: %v", err)
 		return nil, err
 	}
-	if rt.Raw != tokenInDB.RefreshToken {
+	if rt.Raw != rtInDB {
 		log.Printf(
 			"token is not same with DB- received token: %v, db token: %v",
-			rt.Raw, tokenInDB.RefreshToken,
+			rt.Raw, rtInDB,
 		)
 		return nil, fmt.Errorf("invalid token: %v", rt.Raw)
 	}
@@ -51,8 +51,9 @@ func (s *Service) GenerateAccessToken(refreshToken string) (*dto.Token, error) {
 	if err != nil {
 		return nil, err
 	}
+	resp := dto.TokenRefreshResp{AccessToken: at}
 
-	return &dto.Token{AccessToken: at}, nil
+	return &resp, nil
 }
 
 func (s *Service) keyFunc(token *jwt.Token) (any, error) {
@@ -62,7 +63,7 @@ func (s *Service) keyFunc(token *jwt.Token) (any, error) {
 	return s.secretKeyRT, nil
 }
 
-func createToken(id, role string, secretKey []byte, ttl int64) (string, error) {
+func createToken(id, role string, secretKey []byte, ttl int64) (string /*token*/, error) {
 	claims := jwt.MapClaims{
 		"sub":  id,
 		"role": role,

@@ -7,13 +7,15 @@ import (
 	"net/smtp"
 	"os"
 	"server-a/server/dto"
+	"server-a/server/entity"
 	"strconv"
 
+	gocql "github.com/apache/cassandra-gocql-driver/v2"
 	_ "github.com/joho/godotenv/autoload"
 )
 
-func (s *Service) IsEmailUsable(email string) (bool, error) {
-	i, err := s.repository.EmailExists(email)
+func (s *Service) IsEmailUsable(req *dto.EmailReq) (bool, error) {
+	i, err := s.repository.EmailExists(req.Email)
 	if err != nil {
 		return false, err
 	}
@@ -24,11 +26,12 @@ func (s *Service) IsEmailUsable(email string) (bool, error) {
 	return true, nil
 }
 
-func (s *Service) SendEmailVerifyCode(to string) error {
-	code := strconv.Itoa(rand.Intn(900000) + 100000)
-	err := s.repository.SaveEmailValidationCode(to, code)
+func (s *Service) SendEmailOTP(req *dto.EmailReq) (*entity.Member, error) {
+	otp := strconv.Itoa(rand.Intn(900000) + 100000)
+	vid := gocql.TimeUUID()
+	err := s.repository.SaveEmailAndOtpByVerificationId(vid, req.Email, otp)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	go func() {
 		from := os.Getenv("FROM_EMAIL")
@@ -40,13 +43,13 @@ func (s *Service) SendEmailVerifyCode(to string) error {
 		)
 
 		headers := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";"
-		message := "Subject: Verify your email\n" + headers + "\n\n" + code + "\ncode is valid for 5 minutes"
+		message := "Subject: Verify your email\n" + headers + "\n\n" + otp + "\ncode is valid for 5 minutes"
 
 		err = smtp.SendMail(
 			os.Getenv("SMTP_ADDR"),
 			auth,
 			from,
-			[]string{to},
+			[]string{req.Email},
 			[]byte(message),
 		)
 		if err != nil {
@@ -54,20 +57,23 @@ func (s *Service) SendEmailVerifyCode(to string) error {
 		}
 	}()
 
-	return nil
+	return &entity.Member{VerificationId: vid}, nil
 }
 
-func (s *Service) ValidateEmailVerifyCode(req *dto.EmailValidateReq) error {
-	m, err := s.repository.FindCodeByEmail(req.Email)
+func (s *Service) VerifyEmailOTP(req *dto.EmailOtpVerifyReq) error {
+	m, err := s.repository.FindMemberByVerificationId(req.VerificationId)
 	if err != nil {
 		return err
 	}
-	if req.Code != m.Code {
+	if req.OTP != m.OTP {
 		log.Printf(
 			"code is not same with db code- received code: %v, db code: %v",
-			req.Code, m.Code,
+			req.OTP, m.OTP,
 		)
-		return fmt.Errorf("your code %v is not valid", req.Code)
+		return fmt.Errorf("your code %v is not valid", req.OTP)
 	}
+
+	//TODO: change member state if it is after sign up
+
 	return nil
 }

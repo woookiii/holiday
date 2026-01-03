@@ -1,7 +1,9 @@
 package dto
 
+type EmailReq struct {
+	Email string `json:"email"`
+}
 type MemberSaveReq struct {
-	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
@@ -11,7 +13,12 @@ type MemberLoginReq struct {
 	Password string `json:"password"`
 }
 
-type Token struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string
+type EmailLoginResp struct {
+	IsPhoneNumberVerified bool   `json:"isPhoneNumberVerified,omitempty"`
+	IsEmailVerified       bool   `json:"isEmailVerified,omitempty"`
+	AccessToken           string `json:"accessToken,omitempty"`
+}
+
+type TokenRefreshResp struct {
+	AccessToken string `json:"accessToken"`
 }

@@ -7,14 +7,19 @@ import (
 )
 
 type Member struct {
-	Id          gocql.UUID `db:"id" binding:"required"`
-	Name        string     `db:"name" binding:"required"`
-	Email       string     `db:"email" binding:"required"`
-	Password    string     `db:"password" binding:"required"`
-	Secret      string     `db:"secret" binding:"required"`
-	Role        string     `db:"role" binding:"required"`
-	CreatedTime time.Time  `db:"created_time" binding:"required"`
+	VerificationId        gocql.UUID `db:"verification_id"`
+	OTP                   string     `db:"otp"`
+	IsEmailVerified       bool       `db:"is_email_verified"`
+	IsPhoneNumberVerified bool       `db:"is_phone_number_verified"`
+
+	Id          gocql.UUID `db:"id"`
+	Name        string     `db:"name"`
+	PhoneNumber string     `db:"phone_number"`
+	Email       string     `db:"email"`
+	Password    string     `db:"password"`
+	Secret      string     `db:"secret"`
+	Role        string     `db:"role"`
+	CreatedTime time.Time  `db:"created_time"`
 	UpdatedTime time.Time  `db:"updated_time"`
 	DeletedTime time.Time  `db:"deleted_time"`
-	Code        string     `db:"code"`
 }
