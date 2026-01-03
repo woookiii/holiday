@@ -35,12 +35,12 @@ func (n *Network) sendEmailOTP(c *gin.Context) {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	m, err := n.service.SendEmailOTP(&req)
+	result, err := n.service.SendEmailOTP(&req)
 	if err != nil {
 		res(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	res(c, http.StatusOK, m)
+	res(c, http.StatusOK, result)
 }
 
 func (n *Network) verifyEmailOTP(c *gin.Context) {

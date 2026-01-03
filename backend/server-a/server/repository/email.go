@@ -20,7 +20,7 @@ func (r *Repository) SaveEmailAndOtpByVerificationId(verificationId gocql.UUID, 
 	return nil
 }
 
-func (r *Repository) FindMemberByVerificationId(verificationId string) (*entity.Member, error) {
+func (r *Repository) FindEmailAndOtpByVerificationId(verificationId string) (*entity.Member, error) {
 	var m entity.Member
 	err := r.session.Query(
 		"SELECT email, otp FROM member_by_verification_id WHERE verification_id = ?",
@@ -31,4 +31,33 @@ func (r *Repository) FindMemberByVerificationId(verificationId string) (*entity.
 		return nil, err
 	}
 	return &m, nil
+}
+
+func (r *Repository) MarkEmailVerified(email string) error {
+	var m entity.Member
+	err := r.session.Query(
+		"SELECT id FROM member_by_email WHERE email = ?",
+		email,
+	).Scan(&m.Id)
+	if err != nil {
+		slog.Error("fail to select id by email", email, err)
+		return err
+	}
+	err = r.session.Query(
+		"UPDATE member_by_id SET is_email_verified = ? WHERE id = ?",
+		true, m.Id,
+	).Exec()
+	if err != nil {
+		slog.Error("fail to update is_email_verified at member_by_id", m.Id, email, err)
+		return err
+	}
+	err = r.session.Query(
+		"UPDATE member_by_email SET is_email_verified = ? WHERE email = ?",
+		true, email,
+	).Exec()
+	if err != nil {
+		slog.Error("fail to update is_email_verified at member_by_email", m.Id, email, err)
+		return err
+	}
+	return nil
 }

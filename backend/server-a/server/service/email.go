@@ -7,7 +7,6 @@ import (
 	"net/smtp"
 	"os"
 	"server-a/server/dto"
-	"server-a/server/entity"
 	"strconv"
 
 	gocql "github.com/apache/cassandra-gocql-driver/v2"
@@ -26,7 +25,7 @@ func (s *Service) IsEmailUsable(req *dto.EmailReq) (bool, error) {
 	return true, nil
 }
 
-func (s *Service) SendEmailOTP(req *dto.EmailReq) (*entity.Member, error) {
+func (s *Service) SendEmailOTP(req *dto.EmailReq) (*dto.OtpResp, error) {
 	otp := strconv.Itoa(rand.Intn(900000) + 100000)
 	vid := gocql.TimeUUID()
 	err := s.repository.SaveEmailAndOtpByVerificationId(vid, req.Email, otp)
@@ -57,11 +56,11 @@ func (s *Service) SendEmailOTP(req *dto.EmailReq) (*entity.Member, error) {
 		}
 	}()
 
-	return &entity.Member{VerificationId: vid}, nil
+	return &dto.OtpResp{VerificationId: vid.String()}, nil
 }
 
 func (s *Service) VerifyEmailOTP(req *dto.EmailOtpVerifyReq) error {
-	m, err := s.repository.FindMemberByVerificationId(req.VerificationId)
+	m, err := s.repository.FindEmailAndOtpByVerificationId(req.VerificationId)
 	if err != nil {
 		return err
 	}
@@ -73,7 +72,9 @@ func (s *Service) VerifyEmailOTP(req *dto.EmailOtpVerifyReq) error {
 		return fmt.Errorf("your code %v is not valid", req.OTP)
 	}
 
-	//TODO: change member state if it is after sign up
-
+	err = s.repository.MarkEmailVerified(m.Email)
+	if err != nil {
+		return err
+	}
 	return nil
 }

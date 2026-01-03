@@ -9,15 +9,15 @@ import (
 	"github.com/apache/cassandra-gocql-driver/v2"
 )
 
-func (r *Repository) SaveMember(req *dto.MemberSaveReq, id, verificationId gocql.UUID, secret string) error {
+func (r *Repository) SaveMember(req *dto.MemberSaveReq, id gocql.UUID, secret string) error {
 	err := r.session.Batch(gocql.LoggedBatch).
 		Query(
-			"INSERT INTO member_by_email (verification_id, is_email_verified, is_phone_number_verified, id, email, password, secret, role, created_time) VALUES (?, ?, ?, ?, ?, ?, ?);",
-			verificationId, false, false, id, req.Email, req.Password, secret, "user", time.Now(),
+			"INSERT INTO member_by_email (is_email_verified, is_phone_number_verified, id, email, password, secret, role, created_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?);",
+			false, false, id, req.Email, req.Password, secret, "user", time.Now(),
 		).
 		Query(
-			"INSERT INTO member_by_id (verification_id, is_email_verified, is_phone_number_verified, id, email, password, secret, role, created_time) VALUES (?, ?, ?, ?, ?, ?, ?)",
-			verificationId, false, false, id, req.Email, req.Password, secret, "user", time.Now(),
+			"INSERT INTO member_by_id (is_email_verified, is_phone_number_verified, id, email, password, secret, role, created_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+			false, false, id, req.Email, req.Password, secret, "user", time.Now(),
 		).
 		Exec()
 	if err != nil {

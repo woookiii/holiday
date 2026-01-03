@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *Service) CreateMember(req *dto.MemberSaveReq) (*dto.OtpResp, error) {
+func (s *Service) CreateMember(req *dto.MemberSaveReq) (map[string]string, error) {
 	i, err := s.repository.EmailExists(req.Email)
 	if err != nil {
 		return nil, err
@@ -30,16 +30,14 @@ func (s *Service) CreateMember(req *dto.MemberSaveReq) (*dto.OtpResp, error) {
 		return nil, err
 	}
 	id := gocql.TimeUUID()
-	verificationId := gocql.TimeUUID()
-	err = s.repository.SaveMember(req, id, verificationId, secret)
+	err = s.repository.SaveMember(req, id, secret)
 	if err != nil {
 		return nil, err
 	}
-
-	return &dto.OtpResp{VerificationId: verificationId.String()}, nil
+	return map[string]string{"id": id.String()}, nil
 }
 
-func (s *Service) LoginWithEmail(req *dto.MemberLoginReq) (*dto.EmailLoginResp, string /*refreshToken*/, error) {
+func (s *Service) LoginWithEmail(req *dto.MemberLoginReq) (*dto.EmailLoginResp /*refreshToken*/, string, error) {
 	m, err := s.repository.FindLoginInfoByEmail(req.Email)
 	if err != nil {
 		slog.Info("fail to login with email", req.Email, err)
