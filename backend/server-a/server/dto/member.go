@@ -16,6 +16,7 @@ type MemberLoginReq struct {
 type EmailLoginResp struct {
 	IsPhoneNumberVerified bool   `json:"isPhoneNumberVerified,omitempty"`
 	IsEmailVerified       bool   `json:"isEmailVerified,omitempty"`
+	SessionId             string `json:"session_id,omitempty"`
 	AccessToken           string `json:"accessToken,omitempty"`
 }
 

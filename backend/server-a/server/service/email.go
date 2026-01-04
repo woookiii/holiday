@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"math/rand"
 	"net/smtp"
 	"os"
@@ -25,7 +26,7 @@ func (s *Service) IsEmailUsable(req *dto.EmailReq) (bool, error) {
 	return true, nil
 }
 
-func (s *Service) SendEmailOTP(req *dto.EmailReq) (*dto.OtpResp, error) {
+func (s *Service) SendEmailOTP(req *dto.EmailReq) (*dto.SendOTPResp, error) {
 	otp := strconv.Itoa(rand.Intn(900000) + 100000)
 	vid := gocql.TimeUUID()
 	err := s.repository.SaveEmailAndOtpByVerificationId(vid, req.Email, otp)
@@ -56,25 +57,39 @@ func (s *Service) SendEmailOTP(req *dto.EmailReq) (*dto.OtpResp, error) {
 		}
 	}()
 
-	return &dto.OtpResp{VerificationId: vid.String()}, nil
+	return &dto.SendOTPResp{VerificationId: vid.String()}, nil
 }
 
-func (s *Service) VerifyEmailOTP(req *dto.EmailOtpVerifyReq) error {
-	m, err := s.repository.FindEmailAndOtpByVerificationId(req.VerificationId)
+func (s *Service) VerifyEmailOTP(req *dto.OTPVerifyReq) (*dto.VerifyEmailOTPResp, error) {
+	vid, err := gocql.ParseUUID(req.VerificationId)
 	if err != nil {
-		return err
+		slog.Info("fail to parse uuid from verificationId in req", err)
+	}
+	m, err := s.repository.FindEmailAndOtpByVerificationId(vid)
+	if err != nil {
+		return nil, err
 	}
 	if req.OTP != m.OTP {
 		log.Printf(
 			"code is not same with db code- received code: %v, db code: %v",
 			req.OTP, m.OTP,
 		)
-		return fmt.Errorf("your code %v is not valid", req.OTP)
+		return nil, fmt.Errorf("your code %v is not valid", req.OTP)
 	}
 
 	err = s.repository.MarkEmailVerified(m.Email)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	sid := gocql.TimeUUID()
+	err = s.repository.SaveEmailBySessionId(sid, m.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := dto.VerifyEmailOTPResp{
+		SessionId: sid.String(),
+	}
+	return &resp, nil
 }

@@ -44,16 +44,16 @@ func (n *Network) sendEmailOTP(c *gin.Context) {
 }
 
 func (n *Network) verifyEmailOTP(c *gin.Context) {
-	var req dto.EmailOtpVerifyReq
+	var req dto.OTPVerifyReq
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = n.service.VerifyEmailOTP(&req)
+	result, err := n.service.VerifyEmailOTP(&req)
 	if err != nil {
 		res(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-	res(c, http.StatusOK, "ok")
+	res(c, http.StatusOK, result)
 }

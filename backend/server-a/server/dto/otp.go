@@ -1,13 +1,18 @@
 package dto
 
-type OtpResp struct {
+type SendOTPResp struct {
 	VerificationId string `json:"verificationId"`
 }
-type EmailOtpVerifyReq struct {
+type OTPVerifyReq struct {
+	SessionId      string `json:"sessionId"`
 	VerificationId string `json:"verificationId"`
 	OTP            string `json:"otp"`
 }
 
-type SmsOtpSendReq struct {
+type SmsOTPSendReq struct {
 	PhoneNumber string `json:"phoneNumber"`
+}
+
+type VerifyEmailOTPResp struct {
+	SessionId string `json:"session_id"`
 }

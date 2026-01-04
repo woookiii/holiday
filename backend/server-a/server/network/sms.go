@@ -13,7 +13,7 @@ func smsRouter(n *Network) {
 }
 
 func (n *Network) sendSmsOtp(c *gin.Context) {
-	var req dto.SmsOtpSendReq
+	var req dto.SmsOTPSendReq
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
@@ -25,4 +25,19 @@ func (n *Network) sendSmsOtp(c *gin.Context) {
 		return
 	}
 	res(c, http.StatusOK, result)
+}
+
+func (n *Network) verifySmsOtp(c *gin.Context) {
+	var req dto.OTPVerifyReq
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		res(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	err = n.service.VerifySmsOtp(&req)
+	if err != nil {
+		res(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	res(c, http.StatusOK, "ok")
 }

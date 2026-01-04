@@ -11,7 +11,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
-func (s *Service) SendSmsOtp(req *dto.SmsOtpSendReq) (*dto.OtpResp, error) {
+func (s *Service) SendSmsOtp(req *dto.SmsOTPSendReq) (*dto.SendOTPResp, error) {
 	serviceSid := os.Getenv("TWILIO_SERVICE_SID")
 
 	params := &verify.CreateVerificationParams{}
@@ -25,10 +25,14 @@ func (s *Service) SendSmsOtp(req *dto.SmsOtpSendReq) (*dto.OtpResp, error) {
 	}
 	slog.Info("success to send sms otp code", resp.To, resp.Status)
 	vid := gocql.TimeUUID()
-	err = s.repository.SaveVerificationIdAndPhoneNumber(vid, *resp.To)
+	err = s.repository.SavePhoneNumberByVerificationId(vid, *resp.To)
 	if err != nil {
 		return nil, err
 	}
-	res := dto.OtpResp{VerificationId: vid.String()}
+	res := dto.SendOTPResp{VerificationId: vid.String()}
 	return &res, nil
+}
+
+func (s *Service) VerifySmsOtp(d *dto.OTPVerifyReq) error {
+
 }
