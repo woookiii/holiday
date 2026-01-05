@@ -14,10 +14,10 @@ type MemberLoginReq struct {
 }
 
 type EmailLoginResp struct {
-	IsPhoneNumberVerified bool   `json:"isPhoneNumberVerified,omitempty"`
-	IsEmailVerified       bool   `json:"isEmailVerified,omitempty"`
-	SessionId             string `json:"session_id,omitempty"`
-	AccessToken           string `json:"accessToken,omitempty"`
+	PhoneNumberVerified bool   `json:"phoneNumberVerified"`
+	EmailVerified       bool   `json:"emailVerified"`
+	SessionId           string `json:"session_id"`
+	AccessToken         string `json:"accessToken"`
 }
 
 type TokenRefreshResp struct {

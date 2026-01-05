@@ -13,11 +13,6 @@ type Config struct {
 		Issuer string
 	} `toml:"info"`
 
-	Exp struct {
-		ATExp int64
-		RtExp int64
-	}
-
 	Cassandra struct {
 		Keyspace string
 	} `toml:"cassandra"`

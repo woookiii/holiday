@@ -2,9 +2,6 @@
 port = "127.0.0.1:8080"
 issuer = "Holiday"
 
-[exp]
-atExp = 600
-rTExp = 15552000
 
 
 [cassandra]

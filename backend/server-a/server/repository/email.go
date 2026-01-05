@@ -2,33 +2,37 @@ package repository
 
 import (
 	"log/slog"
+	"server-a/server/constant"
 	"server-a/server/entity"
 
 	"github.com/apache/cassandra-gocql-driver/v2"
 )
 
-const AUTH_ID_TTL = 500
-
 func (r *Repository) SaveEmailAndOtpByVerificationId(verificationId gocql.UUID, email, otp string) error {
 	err := r.session.Query(
 		"INSERT INTO member_by_verification_id (verification_id, email, otp) VALUES (?, ?, ?) USING TTL ?",
-		verificationId, email, otp, AUTH_ID_TTL,
+		verificationId, email, otp, constant.AUTH_ID_TTL,
 	).Exec()
 	if err != nil {
-		slog.Error("fail to save email otp by verificationId: %v", err)
+		slog.Error("fail to save email otp by verificationId",
+			"err", err,
+		)
 		return err
 	}
 	return nil
 }
 
-func (r *Repository) FindEmailAndOtpByVerificationId(verificationId gocql.UUID) (*entity.Member, error) {
+func (r *Repository) FindEmailAndOTPByVerificationId(verificationId gocql.UUID) (*entity.Member, error) {
 	var m entity.Member
 	err := r.session.Query(
 		"SELECT email, otp FROM member_by_verification_id WHERE verification_id = ?",
 		verificationId,
 	).Scan(&m.Email, &m.OTP)
 	if err != nil {
-		slog.Info("fail to select email and otp by verification_id", verificationId, err)
+		slog.Info("fail to select email and otp by verification_id",
+			"err", err,
+			"verificationId", verificationId.String(),
+		)
 		return nil, err
 	}
 	return &m, nil
@@ -41,7 +45,10 @@ func (r *Repository) MarkEmailVerified(email string) error {
 		email,
 	).Scan(&m.Id)
 	if err != nil {
-		slog.Error("fail to select id by email", email, err)
+		slog.Error("fail to select id by email",
+			"err", err,
+			"email", email,
+		)
 		return err
 	}
 	err = r.session.Query(
@@ -49,7 +56,11 @@ func (r *Repository) MarkEmailVerified(email string) error {
 		true, m.Id,
 	).Exec()
 	if err != nil {
-		slog.Error("fail to update is_email_verified at member_by_id", m.Id, email, err)
+		slog.Error("fail to update is_email_verified at member_by_id",
+			"err", err,
+			"id", m.Id.String(),
+			"email", email,
+		)
 		return err
 	}
 	err = r.session.Query(
@@ -57,7 +68,11 @@ func (r *Repository) MarkEmailVerified(email string) error {
 		true, email,
 	).Exec()
 	if err != nil {
-		slog.Error("fail to update is_email_verified at member_by_email", m.Id, email, err)
+		slog.Error("fail to update is_email_verified at member_by_email",
+			"err", err,
+			"id", m.Id.String(),
+			"email", email,
+		)
 		return err
 	}
 	return nil
@@ -65,11 +80,30 @@ func (r *Repository) MarkEmailVerified(email string) error {
 
 func (r *Repository) SaveEmailBySessionId(sessionId gocql.UUID, email string) error {
 	err := r.session.Query(
-		"INSERT INTO email_by_session_id (session_id, email) VALUES (?, ?) USING TTL ?",
-		sessionId, email, AUTH_ID_TTL,
+		"INSERT INTO member_by_session_id (session_id, email) VALUES (?, ?) USING TTL ?",
+		sessionId, email, constant.AUTH_ID_TTL,
 	).Exec()
 	if err != nil {
-		slog.Error("fail to insert email by session_id at email_by_session_id", sessionId, email, err)
+		slog.Error("fail to insert email by session_id at email_by_session_id",
+			"err", err,
+			"sessionId", sessionId.String(),
+			"email", email,
+		)
 	}
 	return nil
+}
+
+func (r *Repository) FindEmailBySessionId(sessionId gocql.UUID) (string, error) {
+	var email string
+	err := r.session.Query(
+		"SELECT email FROM member_by_session_id WHERE session_id = ?",
+		sessionId,
+	).Scan(&email)
+	if err != nil {
+		slog.Info("fail to find email by sessionId, might be expired sessionId",
+			"err", err,
+			"sessionId", sessionId,
+		)
+	}
+	return email, nil
 }

@@ -20,7 +20,7 @@ func (n *Network) createMemberByEmail(c *gin.Context) {
 		res(c, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
-	result, err := n.service.CreateMember(&req)
+	result, err := n.service.CreateMemberByEmail(&req)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return

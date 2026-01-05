@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"server-a/server/constant"
 	"server-a/server/dto"
 	"time"
 
@@ -30,7 +31,7 @@ func (s *Service) GenerateAccessToken(refreshToken string) (*dto.TokenRefreshRes
 	if err != nil {
 		log.Printf("fail to parse gocql uuid from id: %v", err)
 	}
-	rtInDB, err := s.repository.FindTokenById(uuid)
+	rtInDB, err := s.repository.FindRefreshTokenById(uuid)
 	if err != nil {
 		log.Printf("fail to find token: %v", err)
 		return nil, err
@@ -47,7 +48,7 @@ func (s *Service) GenerateAccessToken(refreshToken string) (*dto.TokenRefreshRes
 		log.Printf("fail to get role - token: %v", rt.Raw)
 		return nil, fmt.Errorf("fail to get role - token: %v", rt.Raw)
 	}
-	at, err := createToken(id, role, s.secretKeyAT, s.aTExp)
+	at, err := createToken(id, role, s.secretKeyAT, constant.ACCESS_TOKEN_TTL)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +64,7 @@ func (s *Service) keyFunc(token *jwt.Token) (any, error) {
 	return s.secretKeyRT, nil
 }
 
-func createToken(id, role string, secretKey []byte, ttl int64) (string /*token*/, error) {
+func createToken(id, role string, secretKey []byte, ttl int64) ( /*token*/ string, error) {
 	claims := jwt.MapClaims{
 		"sub":  id,
 		"role": role,

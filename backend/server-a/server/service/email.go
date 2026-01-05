@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"log"
 	"log/slog"
 	"math/rand"
@@ -65,7 +64,7 @@ func (s *Service) VerifyEmailOTP(req *dto.OTPVerifyReq) (*dto.VerifyEmailOTPResp
 	if err != nil {
 		slog.Info("fail to parse uuid from verificationId in req", err)
 	}
-	m, err := s.repository.FindEmailAndOtpByVerificationId(vid)
+	m, err := s.repository.FindEmailAndOTPByVerificationId(vid)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +73,10 @@ func (s *Service) VerifyEmailOTP(req *dto.OTPVerifyReq) (*dto.VerifyEmailOTPResp
 			"code is not same with db code- received code: %v, db code: %v",
 			req.OTP, m.OTP,
 		)
-		return nil, fmt.Errorf("your code %v is not valid", req.OTP)
+		resp := dto.VerifyEmailOTPResp{
+			EmailVerified: false,
+		}
+		return &resp, nil
 	}
 
 	err = s.repository.MarkEmailVerified(m.Email)
@@ -89,7 +91,8 @@ func (s *Service) VerifyEmailOTP(req *dto.OTPVerifyReq) (*dto.VerifyEmailOTPResp
 	}
 
 	resp := dto.VerifyEmailOTPResp{
-		SessionId: sid.String(),
+		EmailVerified: true,
+		SessionId:     sid.String(),
 	}
 	return &resp, nil
 }

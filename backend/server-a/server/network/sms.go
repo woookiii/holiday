@@ -8,18 +8,18 @@ import (
 )
 
 func smsRouter(n *Network) {
-	n.Router(POST, "/auth/sms/otp/send", n.sendSmsOtp)
-	n.Router(POST, "/auth/sms/otp/verify", n.verifySmsOtp)
+	n.Router(POST, "/auth/sms/otp/send", n.sendSMSOTP)
+	n.Router(POST, "/auth/sms/otp/verify", n.verifySMSOTP)
 }
 
-func (n *Network) sendSmsOtp(c *gin.Context) {
-	var req dto.SmsOTPSendReq
+func (n *Network) sendSMSOTP(c *gin.Context) {
+	var req dto.SMSOTPSendReq
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	result, err := n.service.SendSmsOtp(&req)
+	result, err := n.service.SendSMSOTP(&req)
 	if err != nil {
 		res(c, http.StatusInternalServerError, err.Error())
 		return
@@ -27,14 +27,14 @@ func (n *Network) sendSmsOtp(c *gin.Context) {
 	res(c, http.StatusOK, result)
 }
 
-func (n *Network) verifySmsOtp(c *gin.Context) {
+func (n *Network) verifySMSOTP(c *gin.Context) {
 	var req dto.OTPVerifyReq
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = n.service.VerifySmsOtp(&req)
+	err = n.service.VerifySMSOTP(&req)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return

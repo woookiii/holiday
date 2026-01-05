@@ -17,10 +17,10 @@ type Member struct {
 	//Give this to user who success to verify their email and who need to verify
 	//their sms(also give this to who success to log in and already verified their
 	//email before, but who need to verify their sms)
-	SessionId             gocql.UUID `db:"session_id"`
-	OTP                   string     `db:"otp"`
-	IsEmailVerified       bool       `db:"is_email_verified"`
-	IsPhoneNumberVerified bool       `db:"is_phone_number_verified"`
+	SessionId           gocql.UUID `db:"session_id"`
+	OTP                 string     `db:"otp"`
+	EmailVerified       bool       `db:"email_verified"`
+	PhoneNumberVerified bool       `db:"phone_number_verified"`
 
 	Id          gocql.UUID `db:"id"`
 	Name        string     `db:"name"`
