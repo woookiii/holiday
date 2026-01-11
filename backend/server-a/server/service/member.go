@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"log/slog"
-	"server-a/server/constant"
 	"server-a/server/dto"
 
 	gocql "github.com/apache/cassandra-gocql-driver/v2"
@@ -66,15 +65,9 @@ func (s *Service) LoginWithEmail(email, password string) (resp dto.EmailLoginRes
 		resp.SessionId = sid.String()
 		return resp, "", nil
 	}
-	at, err := createToken(id.String(), role, s.secretKeyAT, constant.ACCESS_TOKEN_TTL)
+	at, rt, err := s.createLoginTokens(id.String(), role)
 	if err != nil {
-		slog.Error("fail to create access token", err)
-		return resp, "", err
-	}
-	rt, err := createToken(id.String(), role, s.secretKeyRT, constant.REFRESH_TOKEN_TTL)
-	if err != nil {
-		slog.Error("fail to create refresh token", err)
-		return resp, "", err
+		return resp, "", nil
 	}
 	err = s.repository.SaveRefreshTokenById(id, rt)
 	if err != nil {

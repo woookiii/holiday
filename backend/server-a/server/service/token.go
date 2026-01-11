@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"log/slog"
 	"server-a/server/constant"
 	"server-a/server/dto"
 	"time"
@@ -62,6 +63,26 @@ func (s *Service) keyFunc(token *jwt.Token) (any, error) {
 		return nil, fmt.Errorf("unexpected signing method: %s", token.Method.Alg())
 	}
 	return s.secretKeyRT, nil
+}
+
+func (s *Service) createLoginTokens(id string, role string) (accessToken, refreshToken string, err error) {
+	at, err := createToken(id, role, s.secretKeyAT, constant.ACCESS_TOKEN_TTL)
+	if err != nil {
+		slog.Error("fail to create access token",
+			"err", err,
+			"id", id,
+		)
+		return "", "", err
+	}
+	rt, err := createToken(id, role, s.secretKeyRT, constant.REFRESH_TOKEN_TTL)
+	if err != nil {
+		slog.Error("fail to create refresh token",
+			"err", err,
+			"id", id,
+		)
+		return "", "", err
+	}
+	return at, rt, nil
 }
 
 func createToken(id, role string, secretKey []byte, ttl int64) (token string, err error) {

@@ -97,21 +97,8 @@ func (s *Service) VerifySMSOTP(sessionId *string, otp, verificationId string) (*
 		if err != nil {
 			return nil, "", err
 		}
-
-		at, err := createToken(id.String(), constant.ROLE_USER, s.secretKeyAT, constant.ACCESS_TOKEN_TTL)
+		at, rt, err := s.createLoginTokens(id.String(), constant.ROLE_USER)
 		if err != nil {
-			slog.Error("fail to create access token",
-				"err", err,
-				"id", id.String(),
-			)
-			return nil, "", err
-		}
-		rt, err := createToken(id.String(), constant.ROLE_USER, s.secretKeyRT, constant.REFRESH_TOKEN_TTL)
-		if err != nil {
-			slog.Error("fail to create refresh token",
-				"err", err,
-				"id", id.String(),
-			)
 			return nil, "", err
 		}
 		err = s.repository.SaveRefreshTokenById(id, rt)
@@ -134,23 +121,7 @@ func (s *Service) VerifySMSOTP(sessionId *string, otp, verificationId string) (*
 		return nil, "", err
 	}
 
-	//TODO: redundant and need to make method or function return accessToken and refreshToken
-	at, err := createToken(id.String(), constant.ROLE_USER, s.secretKeyAT, constant.ACCESS_TOKEN_TTL)
-	if err != nil {
-		slog.Error("fail to create access token",
-			"err", err,
-			"id", id.String(),
-		)
-		return nil, "", err
-	}
-	rt, err := createToken(id.String(), constant.ROLE_USER, s.secretKeyRT, constant.REFRESH_TOKEN_TTL)
-	if err != nil {
-		slog.Error("fail to create refresh token",
-			"err", err,
-			"id", id.String(),
-		)
-		return nil, "", err
-	}
+	at, rt, err := s.createLoginTokens(id.String(), constant.ROLE_USER)
 	err = s.repository.SaveRefreshTokenById(id, rt)
 	if err != nil {
 		return nil, "", err
