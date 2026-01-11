@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"log"
 	"log/slog"
 	"math/rand"
@@ -11,6 +12,7 @@ import (
 
 	gocql "github.com/apache/cassandra-gocql-driver/v2"
 	_ "github.com/joho/godotenv/autoload"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (s *Service) IsEmailUsable(email string) (bool, error) {
@@ -23,6 +25,71 @@ func (s *Service) IsEmailUsable(email string) (bool, error) {
 		return false, nil
 	}
 	return true, nil
+}
+
+func (s *Service) CreateMemberByEmail(email, password string) (map[string]string, error) {
+	i, err := s.repository.EmailExists(email)
+	if err != nil {
+		return nil, err
+	}
+	if i {
+		log.Printf("this email already exist")
+		return nil, errors.New("this email already exist")
+	}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Printf("fail to hash password: %v", err)
+		return nil, err
+	}
+	password = string(hashedPassword)
+	id := gocql.TimeUUID()
+	err = s.repository.SaveEmailMember(id, email, password)
+	if err != nil {
+		return nil, err
+	}
+	return map[string]string{"id": id.String()}, nil
+}
+
+func (s *Service) LoginWithEmail(email, password string) (*dto.EmailLoginResp, string /*refreshToken*/, error) {
+	var resp dto.EmailLoginResp
+	emailVerified, phoneNumberVerified, id, dbPassword, role, err :=
+		s.repository.FindLoginInfoByEmail(email)
+	if err != nil {
+		return nil, "", err
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(dbPassword), []byte(password))
+	if err != nil {
+		slog.Info("invalid password",
+			"err", err,
+		)
+		return nil, "", err
+	}
+	if !emailVerified {
+		resp.EmailVerified = false
+		resp.PhoneNumberVerified = false
+
+		return &resp, "", nil
+	}
+	if !phoneNumberVerified {
+		sid := gocql.TimeUUID()
+		err = s.repository.SaveEmailBySessionId(sid, email)
+		resp.EmailVerified = true
+		resp.PhoneNumberVerified = false
+		resp.SessionId = sid.String()
+		return &resp, "", nil
+	}
+	at, rt, err := s.createLoginTokens(id.String(), role)
+	if err != nil {
+		return nil, "", err
+	}
+	err = s.repository.SaveRefreshTokenById(id, rt)
+	if err != nil {
+		return nil, "", err
+	}
+	resp.EmailVerified = true
+	resp.PhoneNumberVerified = false
+	resp.AccessToken = at
+	return &resp, rt, nil
 }
 
 func (s *Service) SendEmailOTP(email string) (*dto.SendOTPResp, error) {

@@ -5,21 +5,20 @@ import (
 	"encoding/base32"
 	"log"
 	"net/url"
-	"server-a/server/entity"
 
 	"rsc.io/qr"
 )
 
-func (s *Service) generateUserQR(member *entity.Member) ([]byte, error) {
+func (s *Service) generateUserQR(email, secret string) ([]byte, error) {
 	u, err := url.Parse("otpauth://totp")
 	if err != nil {
 		log.Printf("fail to parse totp base url: %v", err)
 		return nil, err
 	}
-	u.Path += "/" + url.PathEscape(member.Email)
+	u.Path += "/" + url.PathEscape(email)
 
 	p := url.Values{}
-	p.Add("secret", member.Secret)
+	p.Add("secret", secret)
 	p.Add("issuer", s.issuer)
 	u.RawQuery = p.Encode()
 
@@ -31,7 +30,7 @@ func (s *Service) generateUserQR(member *entity.Member) ([]byte, error) {
 	return c.PNG(), err
 }
 
-func generateUserSecret() (string, error) {
+func generateQRSecret() (string, error) {
 	bytes := make([]byte, 10) // 10 bytes, so it is 16 base32 chars
 	if _, err := rand.Read(bytes); err != nil {
 		log.Printf("fail to generate random byte: %v", err)

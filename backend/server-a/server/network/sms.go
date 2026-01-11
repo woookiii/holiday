@@ -2,14 +2,15 @@ package network
 
 import (
 	"net/http"
+	"server-a/server/constant"
 	"server-a/server/dto"
 
 	"github.com/gin-gonic/gin"
 )
 
 func smsRouter(n *Network) {
-	n.Router(POST, "/auth/sms/otp/send", n.sendSMSOTP)
-	n.Router(POST, "/auth/sms/otp/verify", n.verifySMSOTP)
+	n.Router(POST, "/sms/otp/send", n.sendSMSOTP)
+	n.Router(POST, "/sms/otp/verify", n.verifySMSOTP)
 }
 
 func (n *Network) sendSMSOTP(c *gin.Context) {
@@ -34,10 +35,20 @@ func (n *Network) verifySMSOTP(c *gin.Context) {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = n.service.VerifySMSOTP(req.SessionId, req.OTP, req.VerificationId)
+	result, rt, err := n.service.VerifySMSOTP(req.SessionId, req.OTP, req.VerificationId)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	res(c, http.StatusOK, "ok")
+	if rt != "" {
+		c.SetCookie("refresh_token",
+			rt,
+			constant.REFRESH_TOKEN_TTL,
+			"",
+			"",
+			false,
+			true,
+		)
+	}
+	res(c, http.StatusOK, result)
 }

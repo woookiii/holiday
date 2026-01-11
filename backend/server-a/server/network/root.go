@@ -11,7 +11,6 @@ type Network struct {
 	service *service.Service
 	engine  *gin.Engine
 	port    string
-	rtExp   int64
 }
 
 func NewNetwork(cfg *config.Config, s *service.Service) *Network {
@@ -23,7 +22,6 @@ func NewNetwork(cfg *config.Config, s *service.Service) *Network {
 
 	setGin(n.engine)
 	emailRouter(n)
-	memberRouter(n)
 	tokenRouter(n)
 	smsRouter(n)
 
