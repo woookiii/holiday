@@ -13,8 +13,8 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
-func (s *Service) IsEmailUsable(req *dto.EmailReq) (bool, error) {
-	i, err := s.repository.EmailExists(req.Email)
+func (s *Service) IsEmailUsable(email string) (bool, error) {
+	i, err := s.repository.EmailExists(email)
 	if err != nil {
 		return false, err
 	}
@@ -25,10 +25,10 @@ func (s *Service) IsEmailUsable(req *dto.EmailReq) (bool, error) {
 	return true, nil
 }
 
-func (s *Service) SendEmailOTP(req *dto.EmailReq) (*dto.SendOTPResp, error) {
+func (s *Service) SendEmailOTP(email string) (*dto.SendOTPResp, error) {
 	otp := strconv.Itoa(rand.Intn(900000) + 100000)
 	vid := gocql.TimeUUID()
-	err := s.repository.SaveEmailAndOtpByVerificationId(vid, req.Email, otp)
+	err := s.repository.SaveEmailAndOtpByVerificationId(vid, email, otp)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (s *Service) SendEmailOTP(req *dto.EmailReq) (*dto.SendOTPResp, error) {
 			os.Getenv("SMTP_ADDR"),
 			auth,
 			from,
-			[]string{req.Email},
+			[]string{email},
 			[]byte(message),
 		)
 		if err != nil {
@@ -59,19 +59,19 @@ func (s *Service) SendEmailOTP(req *dto.EmailReq) (*dto.SendOTPResp, error) {
 	return &dto.SendOTPResp{VerificationId: vid.String()}, nil
 }
 
-func (s *Service) VerifyEmailOTP(req *dto.OTPVerifyReq) (*dto.VerifyEmailOTPResp, error) {
-	vid, err := gocql.ParseUUID(req.VerificationId)
+func (s *Service) VerifyEmailOTP(otp, verificationId string) (*dto.VerifyEmailOTPResp, error) {
+	vid, err := gocql.ParseUUID(verificationId)
 	if err != nil {
 		slog.Info("fail to parse uuid from verificationId in req", err)
 	}
-	m, err := s.repository.FindEmailAndOTPByVerificationId(vid)
+	email, dbOTP, err := s.repository.FindEmailAndOTPByVerificationId(vid)
 	if err != nil {
 		return nil, err
 	}
-	if req.OTP != m.OTP {
+	if otp != dbOTP {
 		log.Printf(
 			"code is not same with db code- received code: %v, db code: %v",
-			req.OTP, m.OTP,
+			otp, dbOTP,
 		)
 		resp := dto.VerifyEmailOTPResp{
 			EmailVerified: false,
@@ -79,13 +79,13 @@ func (s *Service) VerifyEmailOTP(req *dto.OTPVerifyReq) (*dto.VerifyEmailOTPResp
 		return &resp, nil
 	}
 
-	err = s.repository.MarkEmailVerified(m.Email)
+	err = s.repository.MarkEmailVerified(email)
 	if err != nil {
 		return nil, err
 	}
 
 	sid := gocql.TimeUUID()
-	err = s.repository.SaveEmailBySessionId(sid, m.Email)
+	err = s.repository.SaveEmailBySessionId(sid, email)
 	if err != nil {
 		return nil, err
 	}

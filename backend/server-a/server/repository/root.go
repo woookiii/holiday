@@ -11,7 +11,6 @@ import (
 
 type Repository struct {
 	session *gocql.Session
-	rtExp   int64
 }
 
 func NewRepository(config *config.Config) *Repository {
@@ -34,7 +33,6 @@ func NewRepository(config *config.Config) *Repository {
 
 	r := &Repository{
 		session: session,
-		rtExp:   config.Exp.RtExp,
 	}
 
 	return r

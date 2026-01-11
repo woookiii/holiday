@@ -20,7 +20,7 @@ func (n *Network) checkEmail(c *gin.Context) {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	ok, err := n.service.IsEmailUsable(&req)
+	ok, err := n.service.IsEmailUsable(req.Email)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return
@@ -35,7 +35,7 @@ func (n *Network) sendEmailOTP(c *gin.Context) {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	result, err := n.service.SendEmailOTP(&req)
+	result, err := n.service.SendEmailOTP(req.Email)
 	if err != nil {
 		res(c, http.StatusInternalServerError, err.Error())
 		return
@@ -44,13 +44,13 @@ func (n *Network) sendEmailOTP(c *gin.Context) {
 }
 
 func (n *Network) verifyEmailOTP(c *gin.Context) {
-	var req dto.OTPVerifyReq
+	var req dto.EmailOTPVerifyReq
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	result, err := n.service.VerifyEmailOTP(&req)
+	result, err := n.service.VerifyEmailOTP(req.OTP, req.VerificationId)
 	if err != nil {
 		res(c, http.StatusUnauthorized, err.Error())
 		return

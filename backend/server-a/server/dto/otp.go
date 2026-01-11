@@ -3,7 +3,13 @@ package dto
 type SendOTPResp struct {
 	VerificationId string `json:"verificationId"`
 }
-type OTPVerifyReq struct {
+
+type EmailOTPVerifyReq struct {
+	VerificationId string `json:"verificationId"`
+	OTP            string `json:"otp"`
+}
+
+type SMSOTPVerifyReq struct {
 	SessionId      *string `json:"sessionId"` //nullable
 	VerificationId string  `json:"verificationId"`
 	OTP            string  `json:"otp"`

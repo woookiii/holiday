@@ -11,8 +11,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *Service) CreateMemberByEmail(req *dto.MemberSaveReq) (map[string]string, error) {
-	i, err := s.repository.EmailExists(req.Email)
+func (s *Service) CreateMemberByEmail(email, password string) (map[string]string, error) {
+	i, err := s.repository.EmailExists(email)
 	if err != nil {
 		return nil, err
 	}
@@ -20,65 +20,68 @@ func (s *Service) CreateMemberByEmail(req *dto.MemberSaveReq) (map[string]string
 		log.Printf("this email already exist")
 		return nil, errors.New("this email already exist")
 	}
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("fail to hash password: %v", err)
 		return nil, err
 	}
-	req.Password = string(hashedPassword)
+	password = string(hashedPassword)
 	id := gocql.TimeUUID()
-	err = s.repository.SaveEmailMember(req, id)
+	err = s.repository.SaveEmailMember(id, email, password)
 	if err != nil {
 		return nil, err
 	}
 	return map[string]string{"id": id.String()}, nil
 }
 
-func (s *Service) LoginWithEmail(req *dto.MemberLoginReq) (*dto.EmailLoginResp /*refreshToken*/, string, error) {
-	m, err := s.repository.FindLoginInfoByEmail(req.Email)
+func (s *Service) LoginWithEmail(email, password string) (resp dto.EmailLoginResp, refreshToken string, err error) {
+	emailVerified, phoneNumberVerified, id, dbPassword, role, err :=
+		s.repository.FindLoginInfoByEmail(email)
 	if err != nil {
-		return nil, "", err
+		return resp, "", err
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(m.Password), []byte(req.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(dbPassword), []byte(password))
 	if err != nil {
-		slog.Info("invalid password", req.Password, err)
-		return nil, "", err
+		slog.Info("invalid password",
+			"err", err,
+		)
+		return resp, "", err
 	}
-	if !m.EmailVerified {
-		resp := dto.EmailLoginResp{
-			EmailVerified:       false,
-			PhoneNumberVerified: false,
-		}
-		return &resp, "", nil
+	if !emailVerified {
+		resp.EmailVerified = false
+		resp.PhoneNumberVerified = false
+
+		return resp, "", nil
 	}
-	if !m.PhoneNumberVerified {
+	if !phoneNumberVerified {
 		sid := gocql.TimeUUID()
-		err = s.repository.SaveEmailBySessionId(sid, req.Email)
-		resp := dto.EmailLoginResp{
-			EmailVerified:       true,
-			PhoneNumberVerified: false,
-			SessionId:           sid.String(),
-		}
-		return &resp, "", nil
+		err = s.repository.SaveEmailBySessionId(sid, email)
+		//resp := dto.EmailLoginResp{
+		//	EmailVerified:       true,
+		//	PhoneNumberVerified: false,
+		//	SessionId:           sid.String(),
+		//}
+		resp.EmailVerified = true
+		resp.PhoneNumberVerified = false
+		resp.SessionId = sid.String()
+		return resp, "", nil
 	}
-	at, err := createToken(m.Id.String(), m.Role, s.secretKeyAT, constant.ACCESS_TOKEN_TTL)
+	at, err := createToken(id.String(), role, s.secretKeyAT, constant.ACCESS_TOKEN_TTL)
 	if err != nil {
 		slog.Error("fail to create access token", err)
-		return nil, "", err
+		return resp, "", err
 	}
-	rt, err := createToken(m.Id.String(), m.Role, s.secretKeyRT, constant.REFRESH_TOKEN_TTL)
+	rt, err := createToken(id.String(), role, s.secretKeyRT, constant.REFRESH_TOKEN_TTL)
 	if err != nil {
 		slog.Error("fail to create refresh token", err)
-		return nil, "", err
+		return resp, "", err
 	}
-	err = s.repository.SaveRefreshTokenById(m.Id, rt)
+	err = s.repository.SaveRefreshTokenById(id, rt)
 	if err != nil {
-		return nil, "", err
+		return resp, "", err
 	}
-	resp := dto.EmailLoginResp{
-		EmailVerified:       true,
-		PhoneNumberVerified: true,
-		AccessToken:         at,
-	}
-	return &resp, rt, nil
+	resp.EmailVerified = true
+	resp.PhoneNumberVerified = false
+	resp.AccessToken = at
+	return resp, rt, nil
 }

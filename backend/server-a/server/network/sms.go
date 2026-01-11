@@ -19,7 +19,7 @@ func (n *Network) sendSMSOTP(c *gin.Context) {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	result, err := n.service.SendSMSOTP(&req)
+	result, err := n.service.SendSMSOTP(req.PhoneNumber)
 	if err != nil {
 		res(c, http.StatusInternalServerError, err.Error())
 		return
@@ -28,13 +28,13 @@ func (n *Network) sendSMSOTP(c *gin.Context) {
 }
 
 func (n *Network) verifySMSOTP(c *gin.Context) {
-	var req dto.OTPVerifyReq
+	var req dto.SMSOTPVerifyReq
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = n.service.VerifySMSOTP(&req)
+	err = n.service.VerifySMSOTP(req.SessionId, req.OTP, req.VerificationId)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return

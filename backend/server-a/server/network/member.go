@@ -20,7 +20,7 @@ func (n *Network) createMemberByEmail(c *gin.Context) {
 		res(c, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
-	result, err := n.service.CreateMemberByEmail(&req)
+	result, err := n.service.CreateMemberByEmail(req.Email, req.Password)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return
@@ -36,7 +36,7 @@ func (n *Network) loginWithEmail(c *gin.Context) {
 		res(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-	result, rt, err := n.service.LoginWithEmail(&req)
+	result, rt, err := n.service.LoginWithEmail(req.Email, req.Password)
 	if err != nil {
 		res(c, http.StatusUnauthorized, err.Error())
 		return

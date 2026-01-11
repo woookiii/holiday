@@ -13,11 +13,11 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
-func (s *Service) SendSMSOTP(req *dto.SMSOTPSendReq) (*dto.SendOTPResp, error) {
+func (s *Service) SendSMSOTP(phoneNumber string) (*dto.SendOTPResp, error) {
 	serviceSid := os.Getenv("TWILIO_SERVICE_SID")
 
 	params := &verify.CreateVerificationParams{}
-	params.SetTo(req.PhoneNumber)
+	params.SetTo(phoneNumber)
 	params.SetChannel("sms")
 
 	resp, err := s.twilioClient.VerifyV2.CreateVerification(serviceSid, params)
@@ -37,29 +37,28 @@ func (s *Service) SendSMSOTP(req *dto.SMSOTPSendReq) (*dto.SendOTPResp, error) {
 	return &res, nil
 }
 
-func (s *Service) VerifySMSOTP(req *dto.OTPVerifyReq) (*dto.VerifySMSOTPResp, string /*refreshToken*/, error) {
-	var sid gocql.UUID
+func (s *Service) VerifySMSOTP(sessionId *string, otp, verificationId string) (*dto.VerifySMSOTPResp, string /*refreshToken*/, error) {
 	var email string
-	if req.SessionId != nil {
-		sid, err := gocql.ParseUUID(*req.SessionId)
+	if sessionId != nil {
+		sid, err := gocql.ParseUUID(*sessionId)
 		if err != nil {
 			slog.Info("fail to parse SessionId from OTPVerifyReq",
 				"err", err,
-				"SessionId", *req.SessionId,
+				"SessionId", *sessionId,
 			)
 			return nil, "", err
 		}
-		email, err := s.repository.FindEmailBySessionId(sid)
+		email, err = s.repository.FindEmailBySessionId(sid)
 		if err != nil {
 			return nil, "", err
 		}
 	}
 
-	vid, err := gocql.ParseUUID(req.VerificationId)
+	vid, err := gocql.ParseUUID(verificationId)
 	if err != nil {
 		slog.Info("fail to parse verificationId from request",
 			"err", err,
-			"id", req.VerificationId,
+			"id", verificationId,
 		)
 	}
 	phoneNumber, err := s.repository.FindPhoneNumberByVerificationId(vid)
@@ -68,7 +67,7 @@ func (s *Service) VerifySMSOTP(req *dto.OTPVerifyReq) (*dto.VerifySMSOTPResp, st
 	}
 	params := &verify.CreateVerificationCheckParams{}
 	params.SetTo(phoneNumber)
-	params.SetCode(req.OTP)
+	params.SetCode(otp)
 
 	serviceSid := os.Getenv("TWILIO_SERVICE_SID")
 
@@ -79,19 +78,21 @@ func (s *Service) VerifySMSOTP(req *dto.OTPVerifyReq) (*dto.VerifySMSOTPResp, st
 	}
 	if resp.Status == nil {
 		slog.Error("status is nil pointer")
-		return nil, "", fmt.Errorf("twilio response status is nil pointer: %v", req.VerificationId)
+		return nil, "", fmt.Errorf("twilio response status is nil pointer: %v", verificationId)
 	}
 	if *resp.Status != "approved" {
-		slog.Info("otp is not correct", req)
+		slog.Info("otp is not correct",
+			"otp", otp,
+		)
 		r := dto.VerifySMSOTPResp{
 			PhoneNumberVerified: false,
 		}
 		return &r, "", nil
 	}
 
-	if req.SessionId == nil {
+	if sessionId == nil {
 		id := gocql.TimeUUID()
-		err = s.repository.SavePhoneNumberMember(phoneNumber, &id)
+		err = s.repository.SavePhoneNumberMember(phoneNumber, id)
 		if err != nil {
 			return nil, "", err
 		}
@@ -105,6 +106,17 @@ func (s *Service) VerifySMSOTP(req *dto.OTPVerifyReq) (*dto.VerifySMSOTPResp, st
 			return nil, "", err
 		}
 		rt, err := createToken(id.String(), constant.ROLE_USER, s.secretKeyRT, constant.REFRESH_TOKEN_TTL)
+		if err != nil {
+			slog.Error("fail to create refresh token",
+				"err", err,
+				"id", id.String(),
+			)
+			return nil, "", err
+		}
+		err = s.repository.SaveRefreshTokenById(id, rt)
+		if err != nil {
+			return nil, "", err
+		}
 		r := dto.VerifySMSOTPResp{
 			PhoneNumberVerified: true,
 			AccessToken:         at,
@@ -112,10 +124,39 @@ func (s *Service) VerifySMSOTP(req *dto.OTPVerifyReq) (*dto.VerifySMSOTPResp, st
 		return &r, rt, nil
 	}
 
-	//TODO: save member who verified email and phone number and give qr secret to them
-	//since they are not oauth2 user, and this action need to manage oauth user's email
-	//and non-ouath user's email as different
-	s.repository.SaveEmail
+	id, role, createdTime, err := s.repository.FindMemberInfoByEmail(email)
+	if err != nil {
+		return nil, "", err
+	}
+	err = s.repository.LinkPhoneNumberToMember(id, email, phoneNumber, role, createdTime)
+	if err != nil {
+		return nil, "", err
+	}
 
-	return nil
+	//TODO: redundant and need to make method or function return accessToken and refreshToken
+	at, err := createToken(id.String(), constant.ROLE_USER, s.secretKeyAT, constant.ACCESS_TOKEN_TTL)
+	if err != nil {
+		slog.Error("fail to create access token",
+			"err", err,
+			"id", id.String(),
+		)
+		return nil, "", err
+	}
+	rt, err := createToken(id.String(), constant.ROLE_USER, s.secretKeyRT, constant.REFRESH_TOKEN_TTL)
+	if err != nil {
+		slog.Error("fail to create refresh token",
+			"err", err,
+			"id", id.String(),
+		)
+		return nil, "", err
+	}
+	err = s.repository.SaveRefreshTokenById(id, rt)
+	if err != nil {
+		return nil, "", err
+	}
+	r := dto.VerifySMSOTPResp{
+		PhoneNumberVerified: true,
+		AccessToken:         at,
+	}
+	return &r, rt, nil
 }

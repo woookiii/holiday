@@ -19,7 +19,6 @@ func NewNetwork(cfg *config.Config, s *service.Service) *Network {
 		service: s,
 		engine:  gin.New(),
 		port:    cfg.Info.Port,
-		rtExp:   cfg.Exp.RtExp,
 	}
 
 	setGin(n.engine)

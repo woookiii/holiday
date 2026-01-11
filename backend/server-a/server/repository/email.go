@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"server-a/server/constant"
 	"server-a/server/entity"
+	"time"
 
 	"github.com/apache/cassandra-gocql-driver/v2"
 )
@@ -22,20 +23,19 @@ func (r *Repository) SaveEmailAndOtpByVerificationId(verificationId gocql.UUID, 
 	return nil
 }
 
-func (r *Repository) FindEmailAndOTPByVerificationId(verificationId gocql.UUID) (*entity.Member, error) {
-	var m entity.Member
-	err := r.session.Query(
+func (r *Repository) FindEmailAndOTPByVerificationId(verificationId gocql.UUID) (email string, otp string, err error) {
+	err = r.session.Query(
 		"SELECT email, otp FROM member_by_verification_id WHERE verification_id = ?",
 		verificationId,
-	).Scan(&m.Email, &m.OTP)
+	).Scan(&email, &otp)
 	if err != nil {
 		slog.Info("fail to select email and otp by verification_id",
 			"err", err,
 			"verificationId", verificationId.String(),
 		)
-		return nil, err
+		return "", "", err
 	}
-	return &m, nil
+	return email, otp, nil
 }
 
 func (r *Repository) MarkEmailVerified(email string) error {
@@ -93,9 +93,8 @@ func (r *Repository) SaveEmailBySessionId(sessionId gocql.UUID, email string) er
 	return nil
 }
 
-func (r *Repository) FindEmailBySessionId(sessionId gocql.UUID) (string, error) {
-	var email string
-	err := r.session.Query(
+func (r *Repository) FindEmailBySessionId(sessionId gocql.UUID) (email string, err error) {
+	err = r.session.Query(
 		"SELECT email FROM member_by_session_id WHERE session_id = ?",
 		sessionId,
 	).Scan(&email)
@@ -106,4 +105,18 @@ func (r *Repository) FindEmailBySessionId(sessionId gocql.UUID) (string, error) 
 		)
 	}
 	return email, nil
+}
+
+func (r *Repository) FindMemberInfoByEmail(email string) (id gocql.UUID, role string, t time.Time, err error) {
+	err = r.session.Query("SELECT id, role, created_time FROM member_by_email WHERE email = ?",
+		email,
+	).Scan(&id, &role, &t)
+	if err != nil {
+		slog.Error("fail to select id at member_by_email",
+			"err", err,
+			"email", email,
+		)
+		return gocql.UUID{}, "", time.Time{}, err
+	}
+	return id, role, t, nil
 }

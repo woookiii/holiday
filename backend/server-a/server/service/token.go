@@ -64,7 +64,7 @@ func (s *Service) keyFunc(token *jwt.Token) (any, error) {
 	return s.secretKeyRT, nil
 }
 
-func createToken(id, role string, secretKey []byte, ttl int64) ( /*token*/ string, error) {
+func createToken(id, role string, secretKey []byte, ttl int64) (token string, err error) {
 	claims := jwt.MapClaims{
 		"sub":  id,
 		"role": role,
@@ -72,7 +72,7 @@ func createToken(id, role string, secretKey []byte, ttl int64) ( /*token*/ strin
 		"exp":  time.Now().Add(time.Second * time.Duration(ttl)).Unix(),
 	}
 
-	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(secretKey)
+	token, err = jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(secretKey)
 	if err != nil {
 		log.Printf("fail to make token")
 		return "", err
