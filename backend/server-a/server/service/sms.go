@@ -48,6 +48,7 @@ func (s *Service) VerifySMSOTP(sessionId *string, otp, verificationId string) (*
 			)
 			return nil, "", err
 		}
+
 		email, err = s.repository.FindEmailBySessionId(sid)
 		if err != nil {
 			return nil, "", err
