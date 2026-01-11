@@ -92,7 +92,7 @@ func (s *Service) LoginWithEmail(email, password string) (*dto.EmailLoginResp, s
 	return &resp, rt, nil
 }
 
-func (s *Service) SendEmailOTP(email string) (*dto.SendOTPResp, error) {
+func (s *Service) SendEmailOTP(email string) (*dto.OTPSendResp, error) {
 	otp := strconv.Itoa(rand.Intn(900000) + 100000)
 	vid := gocql.TimeUUID()
 	err := s.repository.SaveEmailAndOtpByVerificationId(vid, email, otp)
@@ -123,10 +123,10 @@ func (s *Service) SendEmailOTP(email string) (*dto.SendOTPResp, error) {
 		}
 	}()
 
-	return &dto.SendOTPResp{VerificationId: vid.String()}, nil
+	return &dto.OTPSendResp{VerificationId: vid.String()}, nil
 }
 
-func (s *Service) VerifyEmailOTP(otp, verificationId string) (*dto.VerifyEmailOTPResp, error) {
+func (s *Service) VerifyEmailOTP(otp, verificationId string) (*dto.EmailOTPVerifyResp, error) {
 	vid, err := gocql.ParseUUID(verificationId)
 	if err != nil {
 		slog.Info("fail to parse uuid from verificationId in req", err)
@@ -140,7 +140,7 @@ func (s *Service) VerifyEmailOTP(otp, verificationId string) (*dto.VerifyEmailOT
 			"code is not same with db code- received code: %v, db code: %v",
 			otp, dbOTP,
 		)
-		resp := dto.VerifyEmailOTPResp{
+		resp := dto.EmailOTPVerifyResp{
 			EmailVerified: false,
 		}
 		return &resp, nil
@@ -157,7 +157,7 @@ func (s *Service) VerifyEmailOTP(otp, verificationId string) (*dto.VerifyEmailOT
 		return nil, err
 	}
 
-	resp := dto.VerifyEmailOTPResp{
+	resp := dto.EmailOTPVerifyResp{
 		EmailVerified: true,
 		SessionId:     sid.String(),
 	}

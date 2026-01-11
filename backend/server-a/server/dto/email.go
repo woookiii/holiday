@@ -3,12 +3,12 @@ package dto
 type EmailReq struct {
 	Email string `json:"email"`
 }
-type MemberSaveReq struct {
+type EmailMemberSaveReq struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-type MemberLoginReq struct {
+type EmailMemberLoginReq struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
@@ -20,6 +20,11 @@ type EmailLoginResp struct {
 	AccessToken         string `json:"accessToken"`
 }
 
-type TokenRefreshResp struct {
-	AccessToken string `json:"accessToken"`
+type EmailOTPVerifyReq struct {
+	VerificationId string `json:"verificationId"`
+	OTP            string `json:"otp"`
+}
+type EmailOTPVerifyResp struct {
+	EmailVerified bool   `json:"emailVerified"`
+	SessionId     string `json:"session_id"`
 }

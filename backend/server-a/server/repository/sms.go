@@ -11,7 +11,7 @@ import (
 
 func (r *Repository) SavePhoneNumberByVerificationId(verificationId gocql.UUID, phoneNumber string) error {
 	err := r.session.Query("INSERT INTO member_by_verification_id (phone_number, verification_id) values (?,?) USING TTL ?",
-		phoneNumber, verificationId, constant.OTP_TTL,
+		phoneNumber, verificationId, constant.OtpTTL,
 	).Exec()
 	if err != nil {
 		slog.Error("fail to insert phone number with id",
@@ -56,11 +56,11 @@ func (r *Repository) SavePhoneNumberMember(phoneNumber string, id gocql.UUID) er
 	err = r.session.Batch(gocql.LoggedBatch).
 		Query(
 			"INSERT INTO member_by_phone_number (phone_number_verified, id, phone_number, role, created_time) VALUES (?, ?, ?, ?, ?)",
-			true, id, phoneNumber, constant.ROLE_USER, t,
+			true, id, phoneNumber, constant.RoleUser, t,
 		).
 		Query(
 			"INSERT INTO member_by_id (phone_number_verified, id, phone_number, role, created_time) VALUES (?, ?, ?, ?, ?)",
-			true, id, phoneNumber, constant.ROLE_USER, t,
+			true, id, phoneNumber, constant.RoleUser, t,
 		).Exec()
 	if err != nil {
 		slog.Error("fail to insert member at member_by_id",

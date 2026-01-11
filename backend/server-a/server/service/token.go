@@ -49,7 +49,7 @@ func (s *Service) GenerateAccessToken(refreshToken string) (*dto.TokenRefreshRes
 		log.Printf("fail to get role - token: %v", rt.Raw)
 		return nil, fmt.Errorf("fail to get role - token: %v", rt.Raw)
 	}
-	at, err := createToken(id, role, s.secretKeyAT, constant.ACCESS_TOKEN_TTL)
+	at, err := createToken(id, role, s.secretKeyAT, constant.AccessTokenTTL)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (s *Service) keyFunc(token *jwt.Token) (any, error) {
 }
 
 func (s *Service) createLoginTokens(id string, role string) (accessToken, refreshToken string, err error) {
-	at, err := createToken(id, role, s.secretKeyAT, constant.ACCESS_TOKEN_TTL)
+	at, err := createToken(id, role, s.secretKeyAT, constant.AccessTokenTTL)
 	if err != nil {
 		slog.Error("fail to create access token",
 			"err", err,
@@ -74,7 +74,7 @@ func (s *Service) createLoginTokens(id string, role string) (accessToken, refres
 		)
 		return "", "", err
 	}
-	rt, err := createToken(id, role, s.secretKeyRT, constant.REFRESH_TOKEN_TTL)
+	rt, err := createToken(id, role, s.secretKeyRT, constant.RefreshTokenTTL)
 	if err != nil {
 		slog.Error("fail to create refresh token",
 			"err", err,

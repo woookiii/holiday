@@ -43,7 +43,7 @@ func (n *Network) verifySMSOTP(c *gin.Context) {
 	if rt != "" {
 		c.SetCookie("refresh_token",
 			rt,
-			constant.REFRESH_TOKEN_TTL,
+			constant.RefreshTokenTTL,
 			"",
 			"",
 			false,

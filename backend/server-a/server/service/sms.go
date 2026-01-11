@@ -13,7 +13,7 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
-func (s *Service) SendSMSOTP(phoneNumber string) (*dto.SendOTPResp, error) {
+func (s *Service) SendSMSOTP(phoneNumber string) (*dto.OTPSendResp, error) {
 	serviceSid := os.Getenv("TWILIO_SERVICE_SID")
 
 	params := &verify.CreateVerificationParams{}
@@ -33,11 +33,11 @@ func (s *Service) SendSMSOTP(phoneNumber string) (*dto.SendOTPResp, error) {
 	if err != nil {
 		return nil, err
 	}
-	res := dto.SendOTPResp{VerificationId: vid.String()}
+	res := dto.OTPSendResp{VerificationId: vid.String()}
 	return &res, nil
 }
 
-func (s *Service) VerifySMSOTP(sessionId *string, otp, verificationId string) (*dto.VerifySMSOTPResp, string /*refreshToken*/, error) {
+func (s *Service) VerifySMSOTP(sessionId *string, otp, verificationId string) (*dto.SMSOTPVerifyResp, string /*refreshToken*/, error) {
 	var email string
 	if sessionId != nil {
 		sid, err := gocql.ParseUUID(*sessionId)
@@ -85,7 +85,7 @@ func (s *Service) VerifySMSOTP(sessionId *string, otp, verificationId string) (*
 		slog.Info("otp is not correct",
 			"otp", otp,
 		)
-		r := dto.VerifySMSOTPResp{
+		r := dto.SMSOTPVerifyResp{
 			PhoneNumberVerified: false,
 		}
 		return &r, "", nil
@@ -97,7 +97,7 @@ func (s *Service) VerifySMSOTP(sessionId *string, otp, verificationId string) (*
 		if err != nil {
 			return nil, "", err
 		}
-		at, rt, err := s.createLoginTokens(id.String(), constant.ROLE_USER)
+		at, rt, err := s.createLoginTokens(id.String(), constant.RoleUser)
 		if err != nil {
 			return nil, "", err
 		}
@@ -105,7 +105,7 @@ func (s *Service) VerifySMSOTP(sessionId *string, otp, verificationId string) (*
 		if err != nil {
 			return nil, "", err
 		}
-		r := dto.VerifySMSOTPResp{
+		r := dto.SMSOTPVerifyResp{
 			PhoneNumberVerified: true,
 			AccessToken:         at,
 		}
@@ -121,12 +121,12 @@ func (s *Service) VerifySMSOTP(sessionId *string, otp, verificationId string) (*
 		return nil, "", err
 	}
 
-	at, rt, err := s.createLoginTokens(id.String(), constant.ROLE_USER)
+	at, rt, err := s.createLoginTokens(id.String(), constant.RoleUser)
 	err = s.repository.SaveRefreshTokenById(id, rt)
 	if err != nil {
 		return nil, "", err
 	}
-	r := dto.VerifySMSOTPResp{
+	r := dto.SMSOTPVerifyResp{
 		PhoneNumberVerified: true,
 		AccessToken:         at,
 	}

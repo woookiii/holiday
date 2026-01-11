@@ -12,10 +12,10 @@ func (r *Repository) SaveEmailMember(id gocql.UUID, email, password string) erro
 	err := r.session.Batch(gocql.LoggedBatch).
 		Query(
 			"INSERT INTO member_by_email (email_verified, phone_number_verified, id, email, password, role, created_time) VALUES (?, ?, ?, ?, ?, ?, ?);",
-			false, false, id, email, password, constant.ROLE_USER, time.Now()).
+			false, false, id, email, password, constant.RoleUser, time.Now()).
 		Query(
 			"INSERT INTO member_by_id (email_verified, phone_number_verified, id, email, role, created_time) VALUES (?, ?, ?, ?, ?, ?)",
-			false, false, id, email, constant.ROLE_USER, time.Now()).
+			false, false, id, email, constant.RoleUser, time.Now()).
 		Exec()
 	if err != nil {
 		slog.Error("fail to save member",
@@ -64,7 +64,7 @@ func (r *Repository) FindLoginInfoByEmail(email string) (emailVerified, phoneNum
 func (r *Repository) SaveEmailAndOtpByVerificationId(verificationId gocql.UUID, email, otp string) error {
 	err := r.session.Query(
 		"INSERT INTO member_by_verification_id (verification_id, email, otp) VALUES (?, ?, ?) USING TTL ?",
-		verificationId, email, otp, constant.AUTH_ID_TTL,
+		verificationId, email, otp, constant.AuthIdTTL,
 	).Exec()
 	if err != nil {
 		slog.Error("fail to save email otp by verificationId",
@@ -133,7 +133,7 @@ func (r *Repository) MarkEmailVerified(email string) error {
 func (r *Repository) SaveEmailBySessionId(sessionId gocql.UUID, email string) error {
 	err := r.session.Query(
 		"INSERT INTO member_by_session_id (session_id, email) VALUES (?, ?) USING TTL ?",
-		sessionId, email, constant.AUTH_ID_TTL,
+		sessionId, email, constant.AuthIdTTL,
 	).Exec()
 	if err != nil {
 		slog.Error("fail to insert email by session_id at email_by_session_id",

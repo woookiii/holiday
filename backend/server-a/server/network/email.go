@@ -17,7 +17,7 @@ func emailRouter(n *Network) {
 }
 
 func (n *Network) createMemberByEmail(c *gin.Context) {
-	var req dto.MemberSaveReq
+	var req dto.EmailMemberSaveReq
 
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
@@ -33,7 +33,7 @@ func (n *Network) createMemberByEmail(c *gin.Context) {
 }
 
 func (n *Network) loginWithEmail(c *gin.Context) {
-	var req dto.MemberLoginReq
+	var req dto.EmailMemberLoginReq
 
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
@@ -48,7 +48,7 @@ func (n *Network) loginWithEmail(c *gin.Context) {
 	if rt != "" {
 		c.SetCookie("refresh_token",
 			rt,
-			constant.REFRESH_TOKEN_TTL,
+			constant.RefreshTokenTTL,
 			"",
 			"",
 			false,
