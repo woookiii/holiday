@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"log"
 	"log/slog"
@@ -15,8 +16,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *Service) IsEmailUsable(email string) (bool, error) {
-	i, err := s.repository.EmailExists(email)
+func (s *Service) IsEmailUsable(ctx context.Context, email string) (bool, error) {
+	i, err := s.repository.EmailExists(ctx, email)
 	if err != nil {
 		return false, err
 	}
@@ -27,8 +28,8 @@ func (s *Service) IsEmailUsable(email string) (bool, error) {
 	return true, nil
 }
 
-func (s *Service) CreateMemberByEmail(email, password string) (map[string]string, error) {
-	i, err := s.repository.EmailExists(email)
+func (s *Service) CreateMemberByEmail(ctx context.Context, email, password string) (map[string]string, error) {
+	i, err := s.repository.EmailExists(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -92,13 +93,14 @@ func (s *Service) LoginWithEmail(email, password string) (*dto.EmailLoginResp, s
 	return &resp, rt, nil
 }
 
-func (s *Service) SendEmailOTP(email string) (*dto.OTPSendResp, error) {
+func (s *Service) SendEmailOTP(ctx context.Context, email string) (*dto.OTPSendResp, error) {
 	otp := strconv.Itoa(rand.Intn(900000) + 100000)
 	vid := gocql.TimeUUID()
 	err := s.repository.SaveEmailAndOtpByVerificationId(vid, email, otp)
 	if err != nil {
 		return nil, err
 	}
+	ctx, cancel := context.WithCancel(ctx)
 	go func() {
 		from := os.Getenv("FROM_EMAIL")
 		auth := smtp.PlainAuth(
@@ -120,6 +122,7 @@ func (s *Service) SendEmailOTP(email string) (*dto.OTPSendResp, error) {
 		)
 		if err != nil {
 			log.Printf("fail to send email: %v", err)
+			cancel()
 		}
 	}()
 

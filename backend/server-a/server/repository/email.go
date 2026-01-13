@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"log/slog"
 	"server-a/server/constant"
 	"time"
@@ -27,12 +28,12 @@ func (r *Repository) SaveEmailMember(id gocql.UUID, email, password string) erro
 	return err
 }
 
-func (r *Repository) EmailExists(email string) (bool, error) {
+func (r *Repository) EmailExists(ctx context.Context, email string) (bool, error) {
 	var c int64
 	err := r.session.Query(
 		"SELECT COUNT(1) FROM member_by_email WHERE email = ?",
 		email,
-	).Scan(&c)
+	).ScanContext(ctx, &c)
 	if c == 0 {
 		return false, nil
 	}

@@ -24,7 +24,7 @@ func (n *Network) createMemberByEmail(c *gin.Context) {
 		res(c, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
-	result, err := n.service.CreateMemberByEmail(req.Email, req.Password)
+	result, err := n.service.CreateMemberByEmail(c.Request.Context(), req.Email, req.Password)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return
@@ -65,7 +65,8 @@ func (n *Network) checkEmail(c *gin.Context) {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	ok, err := n.service.IsEmailUsable(req.Email)
+	ctx := c.Request.Context()
+	ok, err := n.service.IsEmailUsable(ctx, req.Email)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return
@@ -80,7 +81,7 @@ func (n *Network) sendEmailOTP(c *gin.Context) {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	result, err := n.service.SendEmailOTP(req.Email)
+	result, err := n.service.SendEmailOTP(c.Request.Context(), req.Email)
 	if err != nil {
 		res(c, http.StatusInternalServerError, err.Error())
 		return
