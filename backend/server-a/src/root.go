@@ -1,10 +1,11 @@
-package server
+package src
 
 import (
 	"server-a/config"
-	"server-a/server/network"
-	"server-a/server/repository"
-	"server-a/server/service"
+	"server-a/src/kafka/producer"
+	"server-a/src/network"
+	"server-a/src/repository"
+	"server-a/src/service"
 )
 
 type Server struct {
@@ -13,6 +14,8 @@ type Server struct {
 
 func NewServer(cfg *config.Config) *Server {
 	server := &Server{cfg}
+
+	kp := producer.NewKafkaProducer(cfg)
 
 	r := repository.NewRepository(cfg)
 

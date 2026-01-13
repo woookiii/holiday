@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
-	"server-a/server/constant"
-	"server-a/server/dto"
+	"server-a/src/constant"
+	"server-a/src/dto"
 	"time"
 
 	gocql "github.com/apache/cassandra-gocql-driver/v2"

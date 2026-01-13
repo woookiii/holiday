@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"server-a/server/constant"
-	"server-a/server/dto"
+	"server-a/src/constant"
+	"server-a/src/dto"
 
 	gocql "github.com/apache/cassandra-gocql-driver/v2"
 	verify "github.com/twilio/twilio-go/rest/verify/v2"

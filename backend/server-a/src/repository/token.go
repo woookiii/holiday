@@ -2,7 +2,7 @@ package repository
 
 import (
 	"log/slog"
-	"server-a/server/constant"
+	"server-a/src/constant"
 
 	gocql "github.com/apache/cassandra-gocql-driver/v2"
 )

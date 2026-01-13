@@ -8,7 +8,7 @@ import (
 	"math/rand"
 	"net/smtp"
 	"os"
-	"server-a/server/dto"
+	"server-a/src/dto"
 	"strconv"
 
 	gocql "github.com/apache/cassandra-gocql-driver/v2"
@@ -44,6 +44,7 @@ func (s *Service) CreateMemberByEmail(ctx context.Context, email, password strin
 	}
 	password = string(hashedPassword)
 	id := gocql.TimeUUID()
+
 	err = s.repository.SaveEmailMember(id, email, password)
 	if err != nil {
 		return nil, err
@@ -100,7 +101,6 @@ func (s *Service) SendEmailOTP(ctx context.Context, email string) (*dto.OTPSendR
 	if err != nil {
 		return nil, err
 	}
-	ctx, cancel := context.WithCancel(ctx)
 	go func() {
 		from := os.Getenv("FROM_EMAIL")
 		auth := smtp.PlainAuth(
@@ -122,7 +122,6 @@ func (s *Service) SendEmailOTP(ctx context.Context, email string) (*dto.OTPSendR
 		)
 		if err != nil {
 			log.Printf("fail to send email: %v", err)
-			cancel()
 		}
 	}()
 

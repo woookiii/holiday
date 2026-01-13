@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"server-a/config"
-	"server-a/server"
+	"server-a/src"
 )
 
 var cfgPath = flag.String("cfg", "./config.toml", "config path")
@@ -13,5 +13,5 @@ func main() {
 
 	cfg := config.NewConfig(*cfgPath)
 
-	server.NewServer(cfg)
+	src.NewServer(cfg)
 }

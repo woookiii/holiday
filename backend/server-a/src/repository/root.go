@@ -2,11 +2,14 @@ package repository
 
 import (
 	"log"
+	"os"
 	"server-a/config"
 	"time"
 
 	"github.com/apache/cassandra-gocql-driver/v2"
 	"github.com/apache/cassandra-gocql-driver/v2/lz4"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 type Repository struct {
@@ -15,7 +18,7 @@ type Repository struct {
 
 func NewRepository(config *config.Config) *Repository {
 
-	cluster := gocql.NewCluster("localhost:9042")
+	cluster := gocql.NewCluster(os.Getenv("CASSANDRA_URL"))
 	cluster.Keyspace = "default"
 	cluster.Timeout = 1 * time.Minute
 	cluster.Consistency = gocql.Quorum

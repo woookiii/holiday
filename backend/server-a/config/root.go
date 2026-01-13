@@ -16,6 +16,10 @@ type Config struct {
 	Cassandra struct {
 		Keyspace string
 	} `toml:"cassandra"`
+
+	Kafka struct {
+		ProducerClientId string
+	} `toml:"kafka"`
 }
 
 func NewConfig(path string) *Config {
