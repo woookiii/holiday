@@ -13,8 +13,8 @@ interface FormValue {
   passwordConfirm: string;
 }
 
-export default function EmailLoginScreen() {
-  const {emailLoginMutation} = useAuth();
+export default function LoginScreen() {
+  const { emailLoginMutation } = useAuth();
 
   const emailLoginForm = useForm<FormValue>({
     defaultValues: {
@@ -24,30 +24,34 @@ export default function EmailLoginScreen() {
   });
 
   const onSubmit = (formValues: FormValue) => {
-    const {email, password} = formValues
+    const { email, password } = formValues;
 
-    emailLoginMutation.mutate({
-      email,
-      password
-    },{
-      onSuccess: (data) => {
-        if(!data.emailVerified) router.replace("/auth/otp/email")
-        if(!data.phoneNumberVerified) router.replace("/auth/phonenumber")
-        router.replace("/")
-
-      }
-    })
+    emailLoginMutation.mutate(
+      {
+        email,
+        password,
+      },
+      {
+        onSuccess: (data) => {
+          if (!data.emailVerified) router.replace("/auth/otp/email");
+          if (!data.phoneNumberVerified) router.replace("/auth/phonenumber");
+          router.replace("/");
+        },
+      },
+    );
   };
-  return <FormProvider {...emailLoginForm}>
-    <View style={styles.container}>
-      <EmailInput />
-      <PasswordInput submitBehavior="submit" />
-    </View>
-    <FixedBottomCTA
-      label="login"
-      onPress={emailLoginForm.handleSubmit(onSubmit)}
-    />
-  </FormProvider>;
+  return (
+    <FormProvider {...emailLoginForm}>
+      <View style={styles.container}>
+        <EmailInput />
+        <PasswordInput submitBehavior="submit" />
+      </View>
+      <FixedBottomCTA
+        label="login"
+        onPress={emailLoginForm.handleSubmit(onSubmit)}
+      />
+    </FormProvider>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -55,6 +59,6 @@ const styles = StyleSheet.create({
     flex: 1,
     margin: 16,
     gap: 16,
-    backgroundColor: colors.GRAY_700
+    backgroundColor: colors.GRAY_700,
   },
 });

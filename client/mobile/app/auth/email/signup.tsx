@@ -14,8 +14,8 @@ interface FormValue {
   passwordConfirm: string;
 }
 
-export default function EmailSignUpScreen() {
-  const {emailSignupMutation} = useAuth();
+export default function SignupScreen() {
+  const { emailSignupMutation } = useAuth();
 
   const emailSignupForm = useForm<FormValue>({
     defaultValues: {
@@ -26,27 +26,31 @@ export default function EmailSignUpScreen() {
   });
 
   const onSubmit = (formValues: FormValue) => {
-    const {email, password} = formValues
+    const { email, password } = formValues;
 
-    emailSignupMutation.mutate({
-      email,
-      password
-    },
+    emailSignupMutation.mutate(
       {
-        onSuccess: () => router.replace("/auth/otp/email")
-      })
+        email,
+        password,
+      },
+      {
+        onSuccess: () => router.replace("/auth/otp/email"),
+      },
+    );
   };
-  return <FormProvider {...emailSignupForm}>
-    <View style={styles.container}>
-      <EmailInput />
-      <PasswordInput submitBehavior="submit" />
-      <PasswordConfirmInput />
-    </View>
-    <FixedBottomCTA
-      label="signup"
-      onPress={emailSignupForm.handleSubmit(onSubmit)}
-    />
-  </FormProvider>;
+  return (
+    <FormProvider {...emailSignupForm}>
+      <View style={styles.container}>
+        <EmailInput />
+        <PasswordInput submitBehavior="submit" />
+        <PasswordConfirmInput />
+      </View>
+      <FixedBottomCTA
+        label="signup"
+        onPress={emailSignupForm.handleSubmit(onSubmit)}
+      />
+    </FormProvider>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -54,6 +58,6 @@ const styles = StyleSheet.create({
     flex: 1,
     margin: 16,
     gap: 16,
-    backgroundColor: colors.GRAY_700
+    backgroundColor: colors.GRAY_700,
   },
 });

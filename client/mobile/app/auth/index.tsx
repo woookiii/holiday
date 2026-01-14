@@ -1,20 +1,25 @@
-import {SafeAreaView} from "react-native-safe-area-context";
-import { StyleSheet, Text, View} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StyleSheet, Text, View } from "react-native";
 import CustomButton from "@/components/CustomButton";
-import {router} from "expo-router";
-import {colors} from "@/constants";
+import { router } from "expo-router";
+import { colors } from "@/constants";
 
 export default function AuthScreen() {
-
-  return <SafeAreaView style={styles.container}>
-    <View style={styles.buttonContainer}>
-      <Text style={styles.beach}>🏖️</Text>
-      <CustomButton
-        label={"Start with your Phone number"}
-        onPress={()=> router.push('/auth/phonenumber')}
-      />
-    </View>
-  </SafeAreaView>;
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.buttonContainer}>
+        <Text style={styles.beach}>🏖️</Text>
+        <CustomButton
+          label={"Start with your Phone number"}
+          onPress={() => router.push("/auth/phonenumber")}
+        />
+        <CustomButton
+          label={"Start with your Email"}
+          onPress={() => router.push("/auth/email/signup")}
+        />
+      </View>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -31,6 +36,6 @@ const styles = StyleSheet.create({
     gap: 160,
   },
   beach: {
-    fontSize: 100
-  }
+    fontSize: 100,
+  },
 });

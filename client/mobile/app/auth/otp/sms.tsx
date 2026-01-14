@@ -13,7 +13,7 @@ interface FormValue {
   otp: string;
 }
 
-export default function OTPSMSScreen() {
+export default function SMSScreen() {
   const { verifySMSOTPMutation } = useAuth();
   const smsOTPForm = useForm<FormValue>({
     defaultValues: {
@@ -32,10 +32,10 @@ export default function OTPSMSScreen() {
       });
       return;
     }
-    const sessionId = await getSecureStore("sessionId")
+    const sessionId = await getSecureStore("sessionId");
     console.log("execute post sms otp mutate");
     verifySMSOTPMutation.mutate(
-      { otp, verificationId, sessionId},
+      { otp, verificationId, sessionId },
       {
         onSuccess: () => router.replace("/home"),
       },

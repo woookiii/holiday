@@ -13,7 +13,7 @@ interface FormValue {
   otp: string;
 }
 
-export default function OTPEmailScreen() {
+export default function EmailScreen() {
   const { verifyEmailOTPMutation } = useAuth();
 
   const emailOTPForm = useForm<FormValue>({
@@ -34,13 +34,15 @@ export default function OTPEmailScreen() {
       return;
     }
     console.log("execute verify email otp mutate");
-    verifyEmailOTPMutation.mutate({
-      verificationId,
-      otp,
-    },
+    verifyEmailOTPMutation.mutate(
       {
-        onSuccess: () => router.replace("/auth/phonenumber")
-      });
+        verificationId,
+        otp,
+      },
+      {
+        onSuccess: () => router.replace("/auth/phonenumber"),
+      },
+    );
   };
 
   return (
