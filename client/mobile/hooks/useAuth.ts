@@ -17,7 +17,7 @@ function useRequestSmsOtp() {
   return useMutation({
     mutationFn: requestSmsOtp,
     onSuccess: (data) => {
-      saveSecureStore("verificationId", data?.verificationId)
+      saveSecureStore("verificationId", data?.verificationId);
       console.log("success to save verification Id");
     },
   });
@@ -26,7 +26,6 @@ function useRequestSmsOtp() {
 function usePostSmsOtp() {
   return useMutation({
     mutationFn: verifySmsOtp,
-    onSuccess: (data) => {},
     onError: (error) => {
       Toast.show({
         type: "error",

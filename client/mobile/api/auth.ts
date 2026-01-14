@@ -1,5 +1,4 @@
 import { axiosInstance } from "@/api/axios";
-import { Token } from "@/types";
 
 interface verifySmsOtpReq {
   smsCode: string;
@@ -7,12 +6,17 @@ interface verifySmsOtpReq {
 }
 
 async function requestSmsOtp(phoneNumber: string) {
-  const { data } = await axiosInstance.post("/auth/sms/otp", phoneNumber);
+  const { data } = await axiosInstance.post("/auth/sms/otp/send", {
+    phoneNumber,
+  });
   return data;
 }
 
 async function verifySmsOtp(verifySmsOtpReq: verifySmsOtpReq) {
-  const { data } = await axiosInstance.post("/auth/sms/otp", verifySmsOtpReq);
+  const { data } = await axiosInstance.post(
+    "/auth/sms/otp/verify",
+    verifySmsOtpReq,
+  );
   return data;
 }
 

@@ -13,7 +13,7 @@ interface FormValue {
   smsCode: string;
 }
 
-export default function SmsScreen() {
+export default function OTPSmsScreen() {
   const { postSmsOtpMutation } = useAuth();
   const profileForm = useForm<FormValue>({
     defaultValues: {
@@ -23,19 +23,22 @@ export default function SmsScreen() {
 
   const onSubmit = async (formValue: FormValue) => {
     const { smsCode } = formValue;
-    const verificationId = await getSecureStore("verificationId")
-    if(!verificationId){
-      console.error("fail to get verification Id")
+    const verificationId = await getSecureStore("verificationId");
+    if (!verificationId) {
+      console.error("fail to get verification Id");
       Toast.show({
         type: "error",
         text1: "you can't send code",
       });
-      return
+      return;
     }
-    console.log("execute post sms otp mutate")
-    postSmsOtpMutation.mutate({smsCode, verificationId}, {
-      onSuccess: () => router.replace("/home"),
-    });
+    console.log("execute post sms otp mutate");
+    postSmsOtpMutation.mutate(
+      { smsCode, verificationId },
+      {
+        onSuccess: () => router.replace("/home"),
+      },
+    );
   };
 
   return (
