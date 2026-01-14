@@ -2,12 +2,12 @@ import { StyleSheet, View } from "react-native";
 import { Controller, useFormContext } from "react-hook-form";
 import InputField from "@/components/InputField";
 
-export default function SmsCodeInput() {
+export default function OTPInput() {
   const { control } = useFormContext();
 
   return (
     <Controller
-      name="smsCode"
+      name="otp"
       control={control}
       rules={{
         validate: (data: string) => {

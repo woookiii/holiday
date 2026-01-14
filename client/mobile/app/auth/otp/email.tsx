@@ -33,11 +33,14 @@ export default function OTPEmailScreen() {
       });
       return;
     }
-    console.log("execute post sms otp mutate");
+    console.log("execute verify email otp mutate");
     verifyEmailOTPMutation.mutate({
       verificationId,
       otp,
-    });
+    },
+      {
+        onSuccess: () => router.replace("/auth/phonenumber")
+      });
   };
 
   return (

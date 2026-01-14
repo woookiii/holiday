@@ -37,7 +37,7 @@ export default function PasswordInput({submitBehavior = 'blurAndSubmit'}:Props) 
           onChangeText={onChange}
           error={error?.message}
           onSubmitEditing={() => setFocus("passwordConfirm")}
-          placeholderTextColor={colors.GRAY_500}
+          placeholderTextColor={colors.GRAY_50}
         />
       )}
     />

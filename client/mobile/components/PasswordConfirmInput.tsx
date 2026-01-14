@@ -29,7 +29,7 @@ export default function PasswordConfirmInput() {
           value={value}
           onChangeText={onChange}
           error={error?.message}
-          placeholderTextColor={colors.GRAY_500}
+          placeholderTextColor={colors.GRAY_50}
         />
       )}
     />

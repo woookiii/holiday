@@ -28,7 +28,7 @@ export default function PhonenumberScreen() {
     },
   });
 
-  const { requestSmsOtpMutation } = useAuth();
+  const { requestSMSOTPMutation } = useAuth();
 
   const onSubmit = async (formValues: FormValue) => {
     console.log("start submit");
@@ -67,7 +67,7 @@ export default function PhonenumberScreen() {
     }
 
     console.log("execute mutate");
-    requestSmsOtpMutation.mutate(wholeNumber, {
+    requestSMSOTPMutation.mutate(wholeNumber, {
       onSuccess: async () => {
         await saveSecureStore("timeSmsLastSent", String(Date.now()));
         router.push("/auth/otp/sms");
@@ -93,7 +93,7 @@ export default function PhonenumberScreen() {
         <FixedBottomCTA
           label={"Send Code"}
           onPress={phoneNumberForm.handleSubmit(onSubmit)}
-          disabled={requestSmsOtpMutation.isPending}
+          disabled={requestSMSOTPMutation.isPending}
         />
       </FormProvider>
     </SafeAreaView>
@@ -103,7 +103,7 @@ export default function PhonenumberScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.WHITE,
+    backgroundColor: colors.GRAY_700,
   },
   content: {
     flex: 1,

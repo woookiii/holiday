@@ -2,6 +2,7 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import { StyleSheet, Text, View} from "react-native";
 import CustomButton from "@/components/CustomButton";
 import {router} from "expo-router";
+import {colors} from "@/constants";
 
 export default function AuthScreen() {
 
@@ -19,7 +20,7 @@ export default function AuthScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white"
+    backgroundColor: colors.GRAY_700,
   },
   buttonContainer: {
     flex: 1,

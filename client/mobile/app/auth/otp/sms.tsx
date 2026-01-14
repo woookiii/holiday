@@ -3,26 +3,26 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "@/constants";
 import FixedBottomCTA from "@/components/FixedBottomCTA";
 import { FormProvider, useForm } from "react-hook-form";
-import SmsCodeInput from "@/components/SmsCodeInput";
 import { useAuth } from "@/hooks/useAuth";
 import { router } from "expo-router";
 import { getSecureStore } from "@/util/secureStore";
 import Toast from "react-native-toast-message";
+import OTPInput from "@/components/OTPInput";
 
 interface FormValue {
-  smsCode: string;
+  otp: string;
 }
 
-export default function OTPSmsScreen() {
-  const { postSmsOtpMutation } = useAuth();
-  const profileForm = useForm<FormValue>({
+export default function OTPSMSScreen() {
+  const { verifySMSOTPMutation } = useAuth();
+  const smsOTPForm = useForm<FormValue>({
     defaultValues: {
-      smsCode: "",
+      otp: "",
     },
   });
 
   const onSubmit = async (formValue: FormValue) => {
-    const { smsCode } = formValue;
+    const { otp } = formValue;
     const verificationId = await getSecureStore("verificationId");
     if (!verificationId) {
       console.error("fail to get verification Id");
@@ -32,9 +32,10 @@ export default function OTPSmsScreen() {
       });
       return;
     }
+    const sessionId = await getSecureStore("sessionId")
     console.log("execute post sms otp mutate");
-    postSmsOtpMutation.mutate(
-      { smsCode, verificationId },
+    verifySMSOTPMutation.mutate(
+      { otp, verificationId, sessionId},
       {
         onSuccess: () => router.replace("/home"),
       },
@@ -42,14 +43,14 @@ export default function OTPSmsScreen() {
   };
 
   return (
-    <FormProvider {...profileForm}>
+    <FormProvider {...smsOTPForm}>
       <SafeAreaView style={styles.container}>
         <View style={styles.content}>
-          <SmsCodeInput />
+          <OTPInput />
         </View>
         <FixedBottomCTA
           label="Confirm"
-          onPress={profileForm.handleSubmit(onSubmit)}
+          onPress={smsOTPForm.handleSubmit(onSubmit)}
         />
       </SafeAreaView>
     </FormProvider>
@@ -59,7 +60,7 @@ export default function OTPSmsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.WHITE,
+    backgroundColor: colors.GRAY_700,
   },
   content: {
     flex: 1,

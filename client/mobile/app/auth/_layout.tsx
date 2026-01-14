@@ -20,7 +20,28 @@ export default function AuthLayout() {
     <Stack.Screen
       name="otp/sms"
       options={{
-        title: "Verify your OTP",
+        title: "Verify your phone number",
+        headerShown: true
+      }}
+    />
+    <Stack.Screen
+      name="otp/email"
+      options={{
+        title: "Verify your email",
+        headerShown: true
+      }}
+    />
+    <Stack.Screen
+      name="email/signup"
+      options={{
+        title: "Sign up with your email",
+        headerShown: true
+      }}
+    />
+    <Stack.Screen
+      name="email/login"
+      options={{
+        title: "Login with your email",
         headerShown: true
       }}
     />
