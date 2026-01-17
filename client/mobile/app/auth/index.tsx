@@ -1,7 +1,7 @@
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet, Text, View } from "react-native";
 import CustomButton from "@/components/CustomButton";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import { colors } from "@/constants";
 
 export default function AuthScreen() {
@@ -13,10 +13,15 @@ export default function AuthScreen() {
           label={"Start with your Phone number"}
           onPress={() => router.push("/auth/phonenumber")}
         />
-        <CustomButton
-          label={"Start with your Email"}
-          onPress={() => router.push("/auth/email/signup")}
-        />
+        <View style={styles.emailContainer}>
+          <CustomButton
+            label={"Start with your Email"}
+            onPress={() => router.push("/auth/email/signup")}
+          />
+          <Link href={"/auth/email/login"} style={styles.signupText}>
+            Do you have account? Login with your email
+          </Link>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -25,7 +30,7 @@ export default function AuthScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.GRAY_700,
+    backgroundColor: colors.SAND_110,
   },
   buttonContainer: {
     flex: 1,
@@ -33,9 +38,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 40,
     marginTop: 140,
-    gap: 160,
+    gap: 70,
   },
   beach: {
     fontSize: 100,
+  },
+  signupText: {
+    textAlign: "center",
+    textDecorationLine: "underline",
+    fontSize: 15,
+    marginTop: 20,
+  },
+  emailContainer: {
+    flex: 1,
+    width: "100%",
   },
 });

@@ -23,6 +23,7 @@ export default function EmailInput() {
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <InputField
           autoFocus
+          variant="standard"
           label="email"
           placeholder="please put your email"
           inputMode="email" //keyboard form numeric can also
@@ -32,7 +33,6 @@ export default function EmailInput() {
           value={value}
           onChangeText={onChange}
           error={error?.message}
-          placeholderTextColor={colors.GRAY_50}
         />
       )}
     />

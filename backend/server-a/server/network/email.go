@@ -2,8 +2,8 @@ package network
 
 import (
 	"net/http"
-	"server-a/src/constant"
-	"server-a/src/dto"
+	"server-a/server/constant"
+	"server-a/server/dto"
 
 	"github.com/gin-gonic/gin"
 )
@@ -75,13 +75,13 @@ func (n *Network) checkEmail(c *gin.Context) {
 }
 
 func (n *Network) sendEmailOTP(c *gin.Context) {
-	var req dto.EmailReq
+	var req dto.EmailOTPSendReq
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		res(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	result, err := n.service.SendEmailOTP(c.Request.Context(), req.Email)
+	result, err := n.service.SendEmailOTP(c.Request.Context(), req.Id)
 	if err != nil {
 		res(c, http.StatusInternalServerError, err.Error())
 		return

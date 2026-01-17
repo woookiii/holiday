@@ -1,4 +1,6 @@
-import { Stack } from "expo-router";
+import { Link, Stack } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
+import { colors } from "@/constants";
 
 export default function EmailLayout() {
   return (
@@ -6,15 +8,33 @@ export default function EmailLayout() {
       <Stack.Screen
         name="signup"
         options={{
-          title: "Sign up with your email",
+          title: "   Sign up with your email",
           headerShown: true,
+          headerLeft: () => (
+            <Link href={"/"} replace style={{ paddingRight: 5 }}>
+              <MaterialIcons
+                name="arrow-back-ios-new"
+                size={28}
+                color={colors.BLACK}
+              />
+            </Link>
+          ),
         }}
       />
       <Stack.Screen
         name="login"
         options={{
-          title: "Login with your email",
+          title: "   Login",
           headerShown: true,
+          headerLeft: () => (
+            <Link href={"/"} replace style={{ paddingRight: 5 }}>
+              <MaterialIcons
+                name="arrow-back-ios-new"
+                size={28}
+                color={colors.BLACK}
+              />
+            </Link>
+          ),
         }}
       />
     </Stack>

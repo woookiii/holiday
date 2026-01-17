@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log/slog"
-	"server-a/src/kafka/producer"
+	"server-a/server/kafka/producer"
 )
 
 type Handler struct {

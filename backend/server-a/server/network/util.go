@@ -35,7 +35,7 @@ func setGin(engine *gin.Engine) {
 }
 
 func (n *Network) Router(httpMethod HTTPMethod, path string, handler ...gin.HandlerFunc) {
-	e := n.engine
+	e := n.engine.Group("/auth")
 
 	switch httpMethod {
 	case GET:

@@ -21,15 +21,15 @@ export default function PasswordConfirmInput() {
       render={({ field: { ref, onChange, value }, fieldState: { error } }) => (
         <InputField
           ref={ref}
-          label="passwordConfirm"
-          placeholder="please put your passwordConfirm"
+          variant="standard"
+          label="password confirm"
+          placeholder="put your password again"
           submitBehavior="blurAndSubmit"
           secureTextEntry
           textContentType="oneTimeCode"
           value={value}
           onChangeText={onChange}
           error={error?.message}
-          placeholderTextColor={colors.GRAY_50}
         />
       )}
     />

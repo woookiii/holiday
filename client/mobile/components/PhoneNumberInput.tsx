@@ -40,7 +40,7 @@ export default function PhoneNumberInput(props: PhoneNumberInputProps) {
               onChange(digitsOnly);
             }}
             keyboardType="phone-pad"
-            placeholder="Phone number"
+            placeholder="your phone number"
             variant="standard"
             error={fieldState.error?.message}
             submitBehavior="blurAndSubmit"

@@ -2,7 +2,7 @@ package network
 
 import (
 	"server-a/config"
-	"server-a/src/service"
+	"server-a/server/service"
 
 	"github.com/gin-gonic/gin"
 )

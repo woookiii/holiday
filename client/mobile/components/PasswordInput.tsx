@@ -2,13 +2,15 @@ import React from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { colors } from "@/constants";
 import InputField from "@/components/InputField";
-import {TextInputProps} from "react-native";
+import { TextInputProps } from "react-native";
 
 interface Props {
-  submitBehavior?: TextInputProps["submitBehavior"]
+  submitBehavior?: TextInputProps["submitBehavior"];
 }
 
-export default function PasswordInput({submitBehavior = 'blurAndSubmit'}:Props) {
+export default function PasswordInput({
+  submitBehavior = "blurAndSubmit",
+}: Props) {
   const { control, setFocus } = useFormContext();
 
   return (
@@ -29,6 +31,7 @@ export default function PasswordInput({submitBehavior = 'blurAndSubmit'}:Props) 
         <InputField
           ref={ref}
           label="password"
+          variant="standard"
           placeholder="please put your password"
           textContentType="oneTimeCode"
           secureTextEntry
@@ -37,7 +40,6 @@ export default function PasswordInput({submitBehavior = 'blurAndSubmit'}:Props) 
           onChangeText={onChange}
           error={error?.message}
           onSubmitEditing={() => setFocus("passwordConfirm")}
-          placeholderTextColor={colors.GRAY_50}
         />
       )}
     />

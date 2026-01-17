@@ -3,7 +3,7 @@ package service
 import (
 	"os"
 	"server-a/config"
-	"server-a/src/repository"
+	"server-a/server/repository"
 
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/twilio/twilio-go"

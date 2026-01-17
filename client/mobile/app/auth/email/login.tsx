@@ -43,13 +43,15 @@ export default function LoginScreen() {
   return (
     <FormProvider {...emailLoginForm}>
       <View style={styles.container}>
-        <EmailInput />
-        <PasswordInput submitBehavior="submit" />
+        <View style={styles.content}>
+          <EmailInput />
+          <PasswordInput submitBehavior="submit" />
+        </View>
+        <FixedBottomCTA
+          label="login"
+          onPress={emailLoginForm.handleSubmit(onSubmit)}
+        />
       </View>
-      <FixedBottomCTA
-        label="login"
-        onPress={emailLoginForm.handleSubmit(onSubmit)}
-      />
     </FormProvider>
   );
 }
@@ -57,8 +59,13 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.SAND_110,
+  },
+  content: {
+    flex: 1,
     margin: 16,
     gap: 16,
-    backgroundColor: colors.GRAY_700,
+    paddingHorizontal: 20,
+    backgroundColor: colors.SAND_110,
   },
 });

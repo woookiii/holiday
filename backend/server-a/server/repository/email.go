@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"log/slog"
-	"server-a/src/constant"
+	"server-a/server/constant"
 	"time"
 
 	"github.com/apache/cassandra-gocql-driver/v2"
@@ -26,6 +26,20 @@ func (r *Repository) SaveEmailMember(id gocql.UUID, email, password string) erro
 		return err
 	}
 	return err
+}
+
+func (r *Repository) FindEmailById(id gocql.UUID) (email string, err error) {
+	err = r.session.Query(
+		"SELECT email FROM member_by_id WHERE id = ?",
+		id,
+	).Scan(&email)
+	if err != nil {
+		slog.Info("fail to get email from member_by_id",
+			"err", err,
+			"id", id)
+		return "", err
+	}
+	return email, nil
 }
 
 func (r *Repository) EmailExists(ctx context.Context, email string) (bool, error) {

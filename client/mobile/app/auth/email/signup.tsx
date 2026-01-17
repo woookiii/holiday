@@ -41,14 +41,16 @@ export default function SignupScreen() {
   return (
     <FormProvider {...emailSignupForm}>
       <View style={styles.container}>
-        <EmailInput />
-        <PasswordInput submitBehavior="submit" />
-        <PasswordConfirmInput />
+        <View style={styles.content}>
+          <EmailInput />
+          <PasswordInput submitBehavior="submit" />
+          <PasswordConfirmInput />
+        </View>
+        <FixedBottomCTA
+          label="signup"
+          onPress={emailSignupForm.handleSubmit(onSubmit)}
+        />
       </View>
-      <FixedBottomCTA
-        label="signup"
-        onPress={emailSignupForm.handleSubmit(onSubmit)}
-      />
     </FormProvider>
   );
 }
@@ -56,8 +58,12 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.SAND_110,
+  },
+  content: {
+    flex: 1,
     margin: 16,
     gap: 16,
-    backgroundColor: colors.GRAY_700,
+    backgroundColor: colors.SAND_110,
   },
 });

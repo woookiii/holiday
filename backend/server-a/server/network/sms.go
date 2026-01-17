@@ -2,8 +2,8 @@ package network
 
 import (
 	"net/http"
-	"server-a/src/constant"
-	"server-a/src/dto"
+	"server-a/server/constant"
+	"server-a/server/dto"
 
 	"github.com/gin-gonic/gin"
 )

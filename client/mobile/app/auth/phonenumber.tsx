@@ -103,7 +103,7 @@ export default function PhonenumberScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.GRAY_700,
+    backgroundColor: colors.SAND_110,
   },
   content: {
     flex: 1,

@@ -8,7 +8,7 @@ import (
 	"math/rand"
 	"net/smtp"
 	"os"
-	"server-a/src/dto"
+	"server-a/server/dto"
 	"strconv"
 
 	gocql "github.com/apache/cassandra-gocql-driver/v2"
@@ -69,6 +69,7 @@ func (s *Service) LoginWithEmail(email, password string) (*dto.EmailLoginResp, s
 	if !emailVerified {
 		resp.EmailVerified = false
 		resp.PhoneNumberVerified = false
+		resp.Id = id.String()
 
 		return &resp, "", nil
 	}
@@ -94,10 +95,21 @@ func (s *Service) LoginWithEmail(email, password string) (*dto.EmailLoginResp, s
 	return &resp, rt, nil
 }
 
-func (s *Service) SendEmailOTP(ctx context.Context, email string) (*dto.OTPSendResp, error) {
+func (s *Service) SendEmailOTP(ctx context.Context, id string) (*dto.OTPSendResp, error) {
+	uid, err := gocql.ParseUUID(id)
+	if err != nil {
+		slog.Error("fail to parse id",
+			"err", err,
+			"id", id)
+		return nil, err
+	}
+	email, err := s.repository.FindEmailById(uid)
+	if err != nil {
+		return nil, err
+	}
 	otp := strconv.Itoa(rand.Intn(900000) + 100000)
 	vid := gocql.TimeUUID()
-	err := s.repository.SaveEmailAndOtpByVerificationId(vid, email, otp)
+	err = s.repository.SaveEmailAndOtpByVerificationId(vid, email, otp)
 	if err != nil {
 		return nil, err
 	}

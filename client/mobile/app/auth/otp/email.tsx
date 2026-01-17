@@ -63,7 +63,7 @@ export default function EmailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.GRAY_700,
+    backgroundColor: colors.GRAY_900,
   },
   content: {
     flex: 1,

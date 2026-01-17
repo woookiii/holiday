@@ -13,7 +13,7 @@ function FixedBottomCTA({ label, ...props }: FixedBottomCTAProps) {
 
   return (
     <View style={[styles.fixed, { paddingBottom: inset.bottom || 12 }]}>
-      <CustomButton label={label}  {...props} />
+      <CustomButton variant="outlined" label={label} {...props} />
     </View>
   );
 }
@@ -24,10 +24,10 @@ const styles = StyleSheet.create({
     bottom: 10,
     width: "100%",
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.GRAY_300,
+    borderTopColor: colors.GRAY_700,
     paddingTop: 12,
-    paddingHorizontal: 16
-  }
+    paddingHorizontal: 16,
+  },
 });
 
 export default FixedBottomCTA;

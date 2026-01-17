@@ -1,16 +1,16 @@
-import { colors } from '@/constants';
-import { ForwardedRef, forwardRef, ReactNode } from 'react';
+import { colors } from "@/constants";
+import { ForwardedRef, forwardRef, ReactNode } from "react";
 import {
   StyleSheet,
   Text,
   TextInput,
   TextInputProps,
   View,
-} from 'react-native';
+} from "react-native";
 
 interface InputFieldProps extends TextInputProps {
   label?: string;
-  variant?: 'filled' | 'standard' | 'outlined';
+  variant?: "filled" | "standard" | "outlined";
   error?: string;
   rightChild?: ReactNode;
 }
@@ -18,8 +18,8 @@ interface InputFieldProps extends TextInputProps {
 function InputField(
   {
     label,
-    variant = 'filled',
-    error = '',
+    variant = "filled",
+    error = "",
     rightChild = null,
     ...props
   }: InputFieldProps,
@@ -40,6 +40,7 @@ function InputField(
           ref={ref}
           style={[s.input, s[`${variant}Text`]]}
           autoCapitalize="none"
+          placeholderTextColor={colors.GRAY_400}
           spellCheck={false}
           autoCorrect={false}
           {...props}
@@ -61,11 +62,11 @@ const s = StyleSheet.create({
     height: 44,
     borderRadius: 8,
     paddingHorizontal: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    alignSelf: 'stretch',
-    width: '100%',
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    alignSelf: "stretch",
+    width: "100%",
   },
   filled: {
     backgroundColor: colors.GRAY_100,
@@ -73,6 +74,7 @@ const s = StyleSheet.create({
   standard: {
     borderWidth: 1,
     borderColor: colors.GRAY_200,
+    backgroundColor: colors.WHITE,
   },
   outlined: {
     borderWidth: 1,
@@ -82,8 +84,8 @@ const s = StyleSheet.create({
     color: colors.BLACK,
   },
   outlinedText: {
-    color: colors.GREEN_600,
-    fontWeight: 'bold',
+    color: colors.BLACK,
+    fontWeight: "bold",
   },
   filledText: {},
   input: {
@@ -100,7 +102,7 @@ const s = StyleSheet.create({
     backgroundColor: colors.RED_100,
   },
   multiline: {
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
     paddingVertical: 10,
     height: 200,
   },
