@@ -1,6 +1,7 @@
 package producer
 
 import (
+	"log"
 	"log/slog"
 	"os"
 	"server-a/config"
@@ -21,7 +22,7 @@ func NewKafkaProducer(cfg *config.Config) *KafkaProducer {
 		)
 		panic(err)
 	}
-
+	log.Print("success to create kafka producer")
 	kp := KafkaProducer{producer}
 
 	return &kp
@@ -30,13 +31,13 @@ func NewKafkaProducer(cfg *config.Config) *KafkaProducer {
 func createProducer(config *config.Config) (sarama.AsyncProducer, error) {
 	cfg := sarama.NewConfig()
 	cfg.ClientID = config.Kafka.ProducerClientId
-	cfg.Net.SASL.Enable = true
-	cfg.Net.SASL.Version = 1
-	cfg.Net.SASL.Mechanism = sarama.SASLTypePlaintext
+	//cfg.Net.SASL.Enable = true
+	//cfg.Net.SASL.Version = 1
+	//cfg.Net.SASL.Mechanism = sarama.SASLTypePlaintext
 	//cfg.Net.SASL.User = <api-key>
 	//cfg.Net.SASL.Password = <secret>
-	cfg.Net.TLS.Enable = true
-	cfg.Net.SASL.Handshake = true
+	//cfg.Net.TLS.Enable = true
+	//cfg.Net.SASL.Handshake = true
 
 	cfg.Producer.Return.Successes = true
 	cfg.Producer.Return.Errors = true
@@ -62,11 +63,11 @@ func (kp *KafkaProducer) PushMessage(topic string, message []byte) error {
 
 	select {
 	case succeedMsg := <-kp.producer.Successes():
-		slog.Info("Success to produce message",
+		log.Print("Success to produce message",
 			"partition", succeedMsg.Partition)
 		return nil
 	case err := <-kp.producer.Errors():
-		slog.Error("Failed to produce message",
+		log.Print("Failed to produce message",
 			"err", err)
 		return err
 	}

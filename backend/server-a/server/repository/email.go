@@ -119,11 +119,11 @@ func (r *Repository) MarkEmailVerified(email string) error {
 		return err
 	}
 	err = r.session.Query(
-		"UPDATE member_by_id SET is_email_verified = ? WHERE id = ?",
+		"UPDATE member_by_id SET email_verified = ? WHERE id = ?",
 		true, id,
 	).Exec()
 	if err != nil {
-		slog.Error("fail to update is_email_verified at member_by_id",
+		slog.Error("fail to update email_verified at member_by_id",
 			"err", err,
 			"id", id.String(),
 			"email", email,
@@ -131,11 +131,11 @@ func (r *Repository) MarkEmailVerified(email string) error {
 		return err
 	}
 	err = r.session.Query(
-		"UPDATE member_by_email SET is_email_verified = ? WHERE email = ?",
+		"UPDATE member_by_email SET email_verified = ? WHERE email = ?",
 		true, email,
 	).Exec()
 	if err != nil {
-		slog.Error("fail to update is_email_verified at member_by_email",
+		slog.Error("fail to update email_verified at member_by_email",
 			"err", err,
 			"id", id.String(),
 			"email", email,
@@ -151,7 +151,8 @@ func (r *Repository) SaveEmailBySessionId(sessionId gocql.UUID, email string) er
 		sessionId, email, constant.AuthIdTTL,
 	).Exec()
 	if err != nil {
-		slog.Error("fail to insert email by session_id at email_by_session_id",
+		msg := "fail to insert email by session_id at email_by_session_id"
+		slog.Error(msg,
 			"err", err,
 			"sessionId", sessionId.String(),
 			"email", email,

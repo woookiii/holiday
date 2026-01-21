@@ -33,9 +33,18 @@ export default function LoginScreen() {
       },
       {
         onSuccess: (data) => {
-          if (!data.emailVerified) router.replace("/auth/otp/email");
-          if (!data.phoneNumberVerified) router.replace("/auth/phonenumber");
-          router.replace("/");
+          console.log("data.emailVerified:", data?.emailVerified);
+          if (!data.emailVerified) {
+            router.replace("/auth/otp/email");
+            return;
+          }
+          if (!data.phoneNumberVerified) {
+            router.replace("/auth/phonenumber");
+            return;
+          }
+          if (data.accessToken) {
+            router.replace("/");
+          }
         },
       },
     );
@@ -45,7 +54,7 @@ export default function LoginScreen() {
       <View style={styles.container}>
         <View style={styles.content}>
           <EmailInput />
-          <PasswordInput submitBehavior="submit" />
+          <PasswordInput />
         </View>
         <FixedBottomCTA
           label="login"

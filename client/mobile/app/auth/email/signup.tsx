@@ -47,7 +47,7 @@ export default function SignupScreen() {
           <PasswordConfirmInput />
         </View>
         <FixedBottomCTA
-          label="signup"
+          label="sign up"
           onPress={emailSignupForm.handleSubmit(onSubmit)}
         />
       </View>

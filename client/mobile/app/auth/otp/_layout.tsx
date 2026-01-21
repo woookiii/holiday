@@ -9,9 +9,6 @@ export default function OTPLayout() {
         options={{
           title: "Verify your phone number",
           headerShown: true,
-          headerStyle: {
-            backgroundColor: colors.GRAY_700,
-          },
         }}
       />
       <Stack.Screen
@@ -19,9 +16,6 @@ export default function OTPLayout() {
         options={{
           title: "Verify your email",
           headerShown: true,
-          headerStyle: {
-            backgroundColor: colors.GRAY_700,
-          },
         }}
       />
     </Stack>

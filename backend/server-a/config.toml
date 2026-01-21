@@ -1,9 +1,9 @@
 [info]
-port = "127.0.0.1:8080"
+port = ":8080"
 issuer = "Holiday"
 
 [kafka]
-clientId = "go-client-65fad313-91b8-4017-99e7-41d177654321"
+producerClientId = "go-client-65fad313-91b8-4017-99e7-41d177654321"
 
 [cassandra]
 keyspace = "default"

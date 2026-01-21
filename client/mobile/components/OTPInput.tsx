@@ -23,7 +23,7 @@ export default function OTPInput() {
           label=""
           placeholder=""
           returnKeyType="done"
-          submitBehavior="submit"
+          submitBehavior="blurAndSubmit"
           value={value}
           onChangeText={onChange}
           error={error?.message}

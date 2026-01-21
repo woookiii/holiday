@@ -6,23 +6,23 @@ import {
   verifySMSOTPReq,
 } from "@/types/auth";
 
-
-
-export async function postEmailSignup(body: emailSignReq) : Promise<string> {
-  const { data } = await axiosInstance.post("/auth/email/signup", body);
-  return data
+export async function postEmailSignup(body: emailSignReq): Promise<string> {
+  console.log("post email sign up");
+  const { data } = await axiosInstance.post("/auth/email/create", body);
+  return data;
 }
 
 export async function postEmailLogin(
   body: emailSignReq,
 ): Promise<EmailLogiResp> {
   const { data } = await axiosInstance.post("/auth/email/login", body);
+  console.log(data);
   return data;
 }
 
-export async function requestEmailOTP(id: string) : Promise<string>{
-  const { data } = await axiosInstance.post("/auth/email/otp/send", id)
-  return data
+export async function requestEmailOTP(id: string) {
+  const { data } = await axiosInstance.post("/auth/email/otp/send", { id });
+  return data;
 }
 
 export async function requestSMSOTP(phoneNumber: string) {

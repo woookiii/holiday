@@ -17,7 +17,7 @@ type EmailLoginResp struct {
 	PhoneNumberVerified bool   `json:"phoneNumberVerified"`
 	EmailVerified       bool   `json:"emailVerified"`
 	Id                  string `json:"id"`
-	SessionId           string `json:"session_id"`
+	SessionId           string `json:"sessionId"`
 	AccessToken         string `json:"accessToken"`
 }
 

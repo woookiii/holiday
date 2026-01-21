@@ -13,20 +13,8 @@ const (
 	PUT
 )
 
-type header struct {
-	StatusCode int `json:"statusCode"`
-}
-
-type response struct {
-	*header
-	Result any `json:"result"`
-}
-
 func res(c *gin.Context, statusCode int, result any) {
-	c.JSON(statusCode, &response{
-		header: &header{StatusCode: statusCode},
-		Result: result,
-	})
+	c.JSON(statusCode, result)
 }
 
 func setGin(engine *gin.Engine) {

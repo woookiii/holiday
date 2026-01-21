@@ -33,7 +33,7 @@ func NewRepository(config *config.Config) *Repository {
 	if err != nil {
 		log.Panicf("fail to create session from cassandra cluster: %v", err)
 	}
-
+	log.Print("success to connect cassandra")
 	r := &Repository{
 		session: session,
 	}
