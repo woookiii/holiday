@@ -67,8 +67,8 @@ func (s *Service) LoginWithEmail(email, password string) (*dto.EmailLoginResp, s
 		return nil, "", err
 	}
 	if !emailVerified {
-		resp.EmailVerified = false
-		resp.PhoneNumberVerified = false
+		resp.EmailVerified = emailVerified
+		resp.PhoneNumberVerified = phoneNumberVerified
 		resp.Id = id.String()
 
 		return &resp, "", nil
@@ -76,8 +76,8 @@ func (s *Service) LoginWithEmail(email, password string) (*dto.EmailLoginResp, s
 	if !phoneNumberVerified {
 		sid := gocql.TimeUUID()
 		err = s.repository.SaveEmailBySessionId(sid, email)
-		resp.EmailVerified = true
-		resp.PhoneNumberVerified = false
+		resp.EmailVerified = emailVerified
+		resp.PhoneNumberVerified = phoneNumberVerified
 		resp.SessionId = sid.String()
 		return &resp, "", nil
 	}
@@ -89,8 +89,8 @@ func (s *Service) LoginWithEmail(email, password string) (*dto.EmailLoginResp, s
 	if err != nil {
 		return nil, "", err
 	}
-	resp.EmailVerified = true
-	resp.PhoneNumberVerified = false
+	resp.EmailVerified = emailVerified
+	resp.PhoneNumberVerified = phoneNumberVerified
 	resp.AccessToken = at
 	return &resp, rt, nil
 }
