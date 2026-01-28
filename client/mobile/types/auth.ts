@@ -9,23 +9,42 @@ export interface emailSignReq {
 }
 
 export interface verifyEmailOTPReq {
-  otp: string
-  verificationId: string
+  otp: string;
+  verificationId: string;
+}
+
+export interface verifyEmailOTPResp {
+  emailVerified: boolean;
+  sessionId?: string;
 }
 
 export interface verifySMSOTPReq {
   otp: string;
   verificationId: string;
-  sessionId: string | null;
+  sessionId?: string;
 }
 
+export interface verifySMSOTPResp {
+  phoneNumberVerified: boolean;
+  accessToken?: string;
+}
 
-export interface EmailLogiResp {
+export interface EmailLoginResp {
   emailVerified: boolean;
   phoneNumberVerified: boolean;
-  id: string | null;
-  sessionId: string | null;
-  accessToken: string | null;
+  id: string;
+  sessionId?: string;
+  accessToken?: string;
 }
 
+export interface signInWithAppleReq {
+  identityToken: string | null;
+  user: string;
+  email: string | null;
+}
 
+export interface signInWithAppleResp {
+  phoneNumberVerified: boolean;
+  sessionId?: string;
+  accessToken?: string;
+}

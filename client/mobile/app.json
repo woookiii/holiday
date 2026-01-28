@@ -9,6 +9,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "usesAppleSignIn": true,
       "googleServicesFile": "./GoogleService-Info.plist",
       "bundleIdentifier": "com.xcecv.mobile",
       "infoPlist": {
@@ -51,6 +52,7 @@
           "dark": { "backgroundColor": "#000000" }
         }
       ],
+      "expo-apple-authentication",
       "expo-router",
       "expo-secure-store",
       "expo-localization"

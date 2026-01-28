@@ -1,9 +1,13 @@
 import { axiosInstance } from "@/api/axios";
 import {
-  EmailLogiResp,
+  EmailLoginResp,
   emailSignReq,
+  signInWithAppleReq,
+  signInWithAppleResp,
   verifyEmailOTPReq,
+  verifyEmailOTPResp,
   verifySMSOTPReq,
+  verifySMSOTPResp,
 } from "@/types/auth";
 
 export async function postEmailSignup(body: emailSignReq): Promise<string> {
@@ -14,13 +18,15 @@ export async function postEmailSignup(body: emailSignReq): Promise<string> {
 
 export async function postEmailLogin(
   body: emailSignReq,
-): Promise<EmailLogiResp> {
+): Promise<EmailLoginResp> {
   const { data } = await axiosInstance.post("/auth/email/login", body);
   console.log(data);
   return data;
 }
 
-export async function requestEmailOTP(id: string) {
+export async function requestEmailOTP(
+  id: string,
+): Promise<{ verificationId: string }> {
   const { data } = await axiosInstance.post("/auth/email/otp/send", { id });
   return data;
 }
@@ -32,16 +38,24 @@ export async function requestSMSOTP(phoneNumber: string) {
   return data;
 }
 
-export async function verifyEmailOTP(body: verifyEmailOTPReq) {
+export async function verifyEmailOTP(
+  body: verifyEmailOTPReq,
+): Promise<verifyEmailOTPResp> {
   const { data } = await axiosInstance.post("/auth/email/otp/verify", body);
   return data;
 }
 
-export async function verifySMSOTP(verifySMSOTPReq: verifySMSOTPReq) {
-  const { data } = await axiosInstance.post(
-    "/auth/sms/otp/verify",
-    verifySMSOTPReq,
-  );
+export async function verifySMSOTP(
+  body: verifySMSOTPReq,
+): Promise<verifySMSOTPResp> {
+  const { data } = await axiosInstance.post("/auth/sms/otp/verify", body);
+  return data;
+}
+
+export async function signInWithApple(
+  body: signInWithAppleReq,
+): Promise<signInWithAppleResp> {
+  const { data } = await axiosInstance.post("/auth/apple", body);
   return data;
 }
 

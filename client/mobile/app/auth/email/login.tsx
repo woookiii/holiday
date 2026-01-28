@@ -34,6 +34,7 @@ export default function LoginScreen() {
       {
         onSuccess: (data) => {
           console.log("data.emailVerified:", data?.emailVerified);
+          console.log("data.phoneNumberVerified:", data?.phoneNumberVerified);
           if (!data.emailVerified) {
             router.replace("/auth/otp/email");
             return;

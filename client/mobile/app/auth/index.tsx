@@ -1,8 +1,9 @@
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import CustomButton from "@/components/CustomButton";
 import { Link, router } from "expo-router";
 import { colors } from "@/constants";
+import AppleSignInButton from "@/components/AppleSignInButton";
 
 export default function AuthScreen() {
   return (
@@ -13,6 +14,7 @@ export default function AuthScreen() {
           label={"Start with your Phone number"}
           onPress={() => router.push("/auth/phonenumber")}
         />
+        {Platform.OS === 'ios' && <AppleSignInButton/>}
         <View style={styles.emailContainer}>
           <CustomButton
             label={"Start with your Email"}

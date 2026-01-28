@@ -7,6 +7,7 @@ import {
   postEmailSignup,
   requestEmailOTP,
   requestSMSOTP,
+  signInWithApple,
   verifyEmailOTP,
   verifySMSOTP,
 } from "@/api/auth";
@@ -25,7 +26,7 @@ function useEmailSignup() {
   return useMutation({
     mutationFn: postEmailSignup,
     onSuccess: async (data) => {
-      const verificationId = await requestEmailOTP(data);
+      const { verificationId } = await requestEmailOTP(data);
       saveSecureStore("verificationId", verificationId);
       console.log("success to save verification Id");
     },
@@ -43,16 +44,18 @@ function useEmailLogin() {
     mutationFn: postEmailLogin,
     onSuccess: async (data) => {
       if (!data.emailVerified) {
-        const { verificationId } = await requestEmailOTP(data.id ?? "");
+        const { verificationId } = await requestEmailOTP(data.id);
         console.log(verificationId);
         saveSecureStore("verificationId", verificationId);
         const v = await getSecureStore("verificationId");
         console.log(v);
+        return;
       }
       if (!data.phoneNumberVerified) {
-        saveSecureStore("sessionId", data.sessionId ?? "");
+        saveSecureStore("sessionId", data?.sessionId ?? "");
+        return;
       }
-      saveSecureStore("accessToken", data.accessToken ?? "");
+      saveSecureStore("accessToken", data?.accessToken ?? "");
     },
     onError: (error) => {
       Toast.show({
@@ -67,7 +70,7 @@ function useRequestSMSOTP() {
   return useMutation({
     mutationFn: requestSMSOTP,
     onSuccess: (data) => {
-      saveSecureStore("verificationId", data?.verificationId);
+      saveSecureStore("verificationId", data.verificationId);
       console.log("success to save verificationId");
     },
     onError: (error) => {
@@ -83,8 +86,8 @@ function useVerifyEmailOTP() {
   return useMutation({
     mutationFn: verifyEmailOTP,
     onSuccess: async (data) => {
-      console.log(data?.sessionId);
-      saveSecureStore("sessionId", data?.sessionId);
+      console.log(data.sessionId);
+      saveSecureStore("sessionId", data?.sessionId ?? "");
       console.log(await getSecureStore("sessionId"));
     },
     onError: (error) => {
@@ -99,11 +102,28 @@ function useVerifyEmailOTP() {
 function useVerifySMSOTP() {
   return useMutation({
     mutationFn: verifySMSOTP,
+    onSuccess: (data) => {
+      if (data.phoneNumberVerified)
+        saveSecureStore("accessToken", data?.accessToken ?? "");
+    },
     onError: (error) => {
       Toast.show({
         type: "error",
         text1: error.message,
       });
+    },
+  });
+}
+
+function useSignInWithApple() {
+  return useMutation({
+    mutationFn: signInWithApple,
+    onSuccess: async (data) => {
+      if (!data.phoneNumberVerified) {
+        saveSecureStore("sessionId", data?.sessionId ?? "");
+        return;
+      }
+      saveSecureStore("accessToken", data?.accessToken ?? "");
     },
   });
 }
@@ -115,10 +135,10 @@ export function useAuth() {
   const verifyEmailOTPMutation = useVerifyEmailOTP();
   const requestSMSOTPMutation = useRequestSMSOTP();
   const verifySMSOTPMutation = useVerifySMSOTP();
+  const signInWithAppleMutation = useSignInWithApple();
 
   return {
     auth: {
-      //data?.id ||
       id: "",
     },
     emailSignupMutation,
@@ -126,5 +146,6 @@ export function useAuth() {
     verifyEmailOTPMutation,
     requestSMSOTPMutation,
     verifySMSOTPMutation,
+    signInWithAppleMutation,
   };
 }
