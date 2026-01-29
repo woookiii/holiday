@@ -14,35 +14,36 @@ func emailRouter(n *Network) {
 	n.Router(GET, "/email/check", n.checkEmail)
 	n.Router(POST, "/email/otp/send", n.sendEmailOTP)
 	n.Router(POST, "/email/otp/verify", n.verifyEmailOTP)
+	n.Router(POST, "/email/apple", n.signInWithApple)
 }
 
 func (n *Network) createMemberByEmail(c *gin.Context) {
-	var req dto.EmailMemberSaveReq
+	var req dto.EmailMemberSaveRequest
 
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		res(c, http.StatusUnprocessableEntity, err.Error())
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
 		return
 	}
 	result, err := n.service.CreateMemberByEmail(c.Request.Context(), req.Email, req.Password)
 	if err != nil {
-		res(c, http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	res(c, http.StatusOK, result)
+	c.JSON(http.StatusOK, result)
 }
 
 func (n *Network) loginWithEmail(c *gin.Context) {
-	var req dto.EmailMemberLoginReq
+	var req dto.EmailMemberLoginRequest
 
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		res(c, http.StatusUnauthorized, err.Error())
+		c.JSON(http.StatusUnauthorized, err.Error())
 		return
 	}
 	result, rt, err := n.service.LoginWithEmail(req.Email, req.Password)
 	if err != nil {
-		res(c, http.StatusUnauthorized, err.Error())
+		c.JSON(http.StatusUnauthorized, err.Error())
 		return
 	}
 	if rt != "" {
@@ -55,51 +56,60 @@ func (n *Network) loginWithEmail(c *gin.Context) {
 			true,
 		)
 	}
-	res(c, http.StatusOK, result)
+	c.JSON(http.StatusOK, result)
 }
 
 func (n *Network) checkEmail(c *gin.Context) {
-	var req dto.EmailReq
+	var req dto.EmailRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		res(c, http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 	ctx := c.Request.Context()
 	ok, err := n.service.IsEmailUsable(ctx, req.Email)
 	if err != nil {
-		res(c, http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	res(c, http.StatusOK, ok)
+	c.JSON(http.StatusOK, ok)
 }
 
 func (n *Network) sendEmailOTP(c *gin.Context) {
-	var req dto.EmailOTPSendReq
+	var req dto.EmailOTPSendRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		res(c, http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 	result, err := n.service.SendEmailOTP(c.Request.Context(), req.Id)
 	if err != nil {
-		res(c, http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	res(c, http.StatusOK, result)
+	c.JSON(http.StatusOK, result)
 }
 
 func (n *Network) verifyEmailOTP(c *gin.Context) {
-	var req dto.EmailOTPVerifyReq
+	var req dto.EmailOTPVerifyRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		res(c, http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 	result, err := n.service.VerifyEmailOTP(req.OTP, req.VerificationId)
 	if err != nil {
-		res(c, http.StatusUnauthorized, err.Error())
+		c.JSON(http.StatusUnauthorized, err.Error())
 		return
 	}
-	res(c, http.StatusOK, result)
+	c.JSON(http.StatusOK, result)
+}
+
+func (n *Network) signInWithApple(c *gin.Context) {
+	var req dto.SignInWithAppleRequest
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+	}
+
 }

@@ -14,30 +14,30 @@ func smsRouter(n *Network) {
 }
 
 func (n *Network) sendSMSOTP(c *gin.Context) {
-	var req dto.SMSOTPSendReq
+	var req dto.SMSOTPSendRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		res(c, http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 	result, err := n.service.SendSMSOTP(req.PhoneNumber)
 	if err != nil {
-		res(c, http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	res(c, http.StatusOK, result)
+	c.JSON(http.StatusOK, result)
 }
 
 func (n *Network) verifySMSOTP(c *gin.Context) {
-	var req dto.SMSOTPVerifyReq
+	var req dto.SMSOTPVerifyRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		res(c, http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 	result, rt, err := n.service.VerifySMSOTP(req.SessionId, req.OTP, req.VerificationId)
 	if err != nil {
-		res(c, http.StatusBadRequest, err.Error())
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 	if rt != "" {
@@ -50,5 +50,5 @@ func (n *Network) verifySMSOTP(c *gin.Context) {
 			true,
 		)
 	}
-	res(c, http.StatusOK, result)
+	c.JSON(http.StatusOK, result)
 }

@@ -13,7 +13,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func (s *Service) GenerateAccessToken(refreshToken string) (*dto.TokenRefreshResp, error) {
+func (s *Service) GenerateAccessToken(refreshToken string) (*dto.TokenRefreshResponse, error) {
 	rt, err := jwt.Parse(refreshToken, s.keyFunc)
 	if err != nil {
 		log.Printf("fail to parse token: %v", err)
@@ -53,7 +53,7 @@ func (s *Service) GenerateAccessToken(refreshToken string) (*dto.TokenRefreshRes
 	if err != nil {
 		return nil, err
 	}
-	resp := dto.TokenRefreshResp{AccessToken: at}
+	resp := dto.TokenRefreshResponse{AccessToken: at}
 
 	return &resp, nil
 }

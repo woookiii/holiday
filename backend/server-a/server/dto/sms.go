@@ -1,15 +1,15 @@
 package dto
 
-type SMSOTPSendReq struct {
+type SMSOTPSendRequest struct {
 	PhoneNumber string `json:"phoneNumber"`
 }
-type SMSOTPVerifyReq struct {
+type SMSOTPVerifyRequest struct {
 	SessionId      *string `json:"sessionId"` //nullable
 	VerificationId string  `json:"verificationId"`
 	OTP            string  `json:"otp"`
 }
 
-type SMSOTPVerifyResp struct {
+type SMSOTPVerifyResponse struct {
 	PhoneNumberVerified bool   `json:"phoneNumberVerified"`
 	AccessToken         string `json:"accessToken"`
 }

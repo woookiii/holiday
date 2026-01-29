@@ -52,8 +52,8 @@ func (s *Service) CreateMemberByEmail(ctx context.Context, email, password strin
 	return map[string]string{"id": id.String()}, nil
 }
 
-func (s *Service) LoginWithEmail(email, password string) (*dto.EmailLoginResp, string /*refreshToken*/, error) {
-	var resp dto.EmailLoginResp
+func (s *Service) LoginWithEmail(email, password string) (*dto.EmailLoginResponse, string /*refreshToken*/, error) {
+	var resp dto.EmailLoginResponse
 	emailVerified, phoneNumberVerified, id, dbPassword, role, err :=
 		s.repository.FindLoginInfoByEmail(email)
 	if err != nil {
@@ -95,7 +95,7 @@ func (s *Service) LoginWithEmail(email, password string) (*dto.EmailLoginResp, s
 	return &resp, rt, nil
 }
 
-func (s *Service) SendEmailOTP(ctx context.Context, id string) (*dto.OTPSendResp, error) {
+func (s *Service) SendEmailOTP(ctx context.Context, id string) (*dto.OTPSendResponse, error) {
 	uid, err := gocql.ParseUUID(id)
 	if err != nil {
 		slog.Error("fail to parse id",
@@ -137,10 +137,10 @@ func (s *Service) SendEmailOTP(ctx context.Context, id string) (*dto.OTPSendResp
 		}
 	}()
 
-	return &dto.OTPSendResp{VerificationId: vid.String()}, nil
+	return &dto.OTPSendResponse{VerificationId: vid.String()}, nil
 }
 
-func (s *Service) VerifyEmailOTP(otp, verificationId string) (*dto.EmailOTPVerifyResp, error) {
+func (s *Service) VerifyEmailOTP(otp, verificationId string) (*dto.EmailOTPVerifyResponse, error) {
 	vid, err := gocql.ParseUUID(verificationId)
 	if err != nil {
 		slog.Info("fail to parse uuid from verificationId in req", err)
@@ -154,7 +154,7 @@ func (s *Service) VerifyEmailOTP(otp, verificationId string) (*dto.EmailOTPVerif
 			"code is not same with db code- received code: %v, db code: %v",
 			otp, dbOTP,
 		)
-		resp := dto.EmailOTPVerifyResp{
+		resp := dto.EmailOTPVerifyResponse{
 			EmailVerified: false,
 		}
 		return &resp, nil
@@ -171,7 +171,7 @@ func (s *Service) VerifyEmailOTP(otp, verificationId string) (*dto.EmailOTPVerif
 		return nil, err
 	}
 
-	resp := dto.EmailOTPVerifyResp{
+	resp := dto.EmailOTPVerifyResponse{
 		EmailVerified: true,
 		SessionId:     sid.String(),
 	}

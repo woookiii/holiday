@@ -1,9 +1,9 @@
 package dto
 
-type OTPSendResp struct {
+type OTPSendResponse struct {
 	VerificationId string `json:"verificationId"`
 }
 
-type TokenRefreshResp struct {
+type TokenRefreshResponse struct {
 	AccessToken string `json:"accessToken"`
 }

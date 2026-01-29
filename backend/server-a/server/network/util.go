@@ -13,10 +13,6 @@ const (
 	PUT
 )
 
-func res(c *gin.Context, statusCode int, result any) {
-	c.JSON(statusCode, result)
-}
-
 func setGin(engine *gin.Engine) {
 	engine.Use(gin.Logger())
 	engine.Use(gin.Recovery())
