@@ -177,3 +177,15 @@ func (s *Service) VerifyEmailOTP(otp, verificationId string) (*dto.EmailOTPVerif
 	}
 	return &resp, nil
 }
+
+func (s *Service) SignInWithApple(
+	user string,
+	email,
+	identityToken *string,
+	nonce string,
+) (*dto.SignInWithAppleResponse, error) {
+	if identityToken == nil {
+		return nil, errors.New("no identityToken")
+	}
+	//TODO: fetch jwk from apple and verify it, see key func go jwt
+}

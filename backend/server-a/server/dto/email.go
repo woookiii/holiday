@@ -36,6 +36,13 @@ type EmailOTPVerifyResponse struct {
 
 type SignInWithAppleRequest struct {
 	User          string  `json:"user"`
-	IdentityToken *string `json:"identityToken"`
 	Email         *string `json:"email"`
+	IdentityToken *string `json:"identityToken"`
+	Nonce         string  `json:"nonce"`
+}
+
+type SignInWithAppleResponse struct {
+	PhoneNumberVerified bool   `json:"phoneNumberVerified"`
+	SessionId           string `json:"sessionId"`
+	AccessToken         string `json:"accessToken"`
 }

@@ -111,5 +111,9 @@ func (n *Network) signInWithApple(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err.Error())
 	}
-
+	responseBody, err := n.service.SignInWithApple(req.User, req.Nonce, req.IdentityToken, req.Email)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, err.Error())
+	}
+	c.JSON(http.StatusOK, responseBody)
 }
