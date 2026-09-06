@@ -10,7 +10,7 @@ import {
 import { colors } from "@/constants";
 
 interface CustomButtonProps extends PressableProps {
-  label: string;
+  label: React.ReactNode;
   size?: "medium" | "large";
   variant?: "filled" | "standard" | "outlined";
   style?: StyleProp<ViewStyle>;
@@ -37,7 +37,11 @@ export default function CustomButton({
         ])
       }
     >
-      <Text style={styles[`${variant}Text`]}>{label}</Text>
+      {typeof label === "string" ? (
+        <Text style={styles[`${variant}Text`]}>{label}</Text>
+      ) : (
+        label
+      )}
     </Pressable>
   );
 }
@@ -81,7 +85,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "bold",
     color: colors.WHITE,
-    textAlign: "center"
+    textAlign: "center",
   },
   outlinedText: {
     fontSize: 17,

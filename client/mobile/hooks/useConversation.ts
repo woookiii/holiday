@@ -1,4 +1,9 @@
-import { useInfiniteQuery, useMutation, useQueries, useQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueries,
+  useQuery,
+} from "@tanstack/react-query";
 import {
   banParticipant,
   blockConversation,
@@ -254,6 +259,12 @@ export function useRegisterOnlineConversation() {
         ],
       });
     },
+    onError: (error: AxiosError) => {
+      Toast.show({
+        type: "error",
+        text1: String(error.response?.data),
+      });
+    },
   });
 }
 
@@ -292,8 +303,8 @@ export function useScheduleOnlineConversationNotification() {
       });
       Toast.show({
         type: "success",
-        text1: "We will send push 15 minutes before convo start"
-      })
+        text1: "We will send push 15 minutes before convo start",
+      });
     },
   });
 }

@@ -21,6 +21,8 @@ import { reportUser } from "@/api/chat";
 import { reportOnlineConversation } from "@/api/conversation";
 import { router } from "expo-router";
 import { requestRecordingPermissionsAsync } from "expo-audio";
+import { Ionicons } from "@expo/vector-icons";
+import { requestPermissionsAsync } from "expo-notifications";
 
 interface OnlineConversationDetailProps {
   id: string;
@@ -120,7 +122,15 @@ export default function OnlineConversationDetail({
             <Text style={styles.ruleHeader}>No rule</Text>
           )}
           <View style={{ gap: 30 }}>
-            {data.isRegistrant ? (
+            {data.canEnter ? (
+              <CustomButton
+                label="Enter"
+                onPress={async () => {
+                  await requestRecordingPermissionsAsync();
+                  handleEnter();
+                }}
+              />
+            ) : data.isRegistrant ? (
               <View style={styles.buttonRow}>
                 <CustomButton
                   label={"Cancel registration"}
@@ -131,14 +141,17 @@ export default function OnlineConversationDetail({
                 />
                 {data.isNotificationScheduled ? (
                   <CustomButton
-                    label={"Cancel notification"}
+                    label={<Ionicons name="notifications-off" />}
                     onPress={() => cancelNotificationMutation.mutate({ id })}
                     disabled={cancelNotificationMutation.isPending}
                   />
                 ) : (
                   <CustomButton
-                    label={"Schedule notification"}
-                    onPress={() => scheduleNotificationMutation.mutate({ id })}
+                    label={<Ionicons name="notifications" />}
+                    onPress={async () => {
+                      await requestPermissionsAsync();
+                      scheduleNotificationMutation.mutate({ id });
+                    }}
                     disabled={scheduleNotificationMutation.isPending}
                   />
                 )}
@@ -152,21 +165,6 @@ export default function OnlineConversationDetail({
                 disabled={registerOnlineConversationMutation.isPending}
               />
             )}
-            <CustomButton
-              label={
-                data.canEnter
-                  ? "Enter"
-                  : data.isRegistrant
-                    ? "Enter available 15 minutes before convo start"
-                    : "Non-registrant enter available \n 10 minutes after convo start"
-              }
-              style={!data.canEnter ? { height: 60 } : undefined}
-              onPress={async () => {
-                await requestRecordingPermissionsAsync();
-                handleEnter();
-              }}
-              disabled={!data.canEnter}
-            />
           </View>
         </View>
       </View>
