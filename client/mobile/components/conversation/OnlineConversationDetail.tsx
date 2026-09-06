@@ -7,9 +7,11 @@ import {
 } from "react-native";
 import {
   useBlockConversation,
+  useCancelOnlineConversationNotification,
   useDeregisterOnlineConversation,
   useGetOnlineConversationDetail,
   useRegisterOnlineConversation,
+  useScheduleOnlineConversationNotification,
 } from "@/hooks/useConversation";
 import CustomButton from "@/components/CustomButton";
 import { colors } from "@/constants";
@@ -33,6 +35,9 @@ export default function OnlineConversationDetail({
   const registerOnlineConversationMutation = useRegisterOnlineConversation();
   const deregisterOnlineConversationMutation =
     useDeregisterOnlineConversation();
+  const scheduleNotificationMutation =
+    useScheduleOnlineConversationNotification();
+  const cancelNotificationMutation = useCancelOnlineConversationNotification();
 
   const handleReport = () => {
     showActionSheetWithOptions(
@@ -115,19 +120,38 @@ export default function OnlineConversationDetail({
             <Text style={styles.ruleHeader}>No rule</Text>
           )}
           <View style={{ gap: 30 }}>
-            <CustomButton
-              label={!data.isRegistrant ? "Register" : "Cancel registration"}
-              onPress={
-                !data.isRegistrant
-                  ? () => registerOnlineConversationMutation.mutate({ id: id })
-                  : () =>
-                      deregisterOnlineConversationMutation.mutate({ id: id })
-              }
-              disabled={
-                registerOnlineConversationMutation.isPending ||
-                deregisterOnlineConversationMutation.isPending
-              }
-            />
+            {data.isRegistrant ? (
+              <View style={styles.buttonRow}>
+                <CustomButton
+                  label={"Cancel registration"}
+                  onPress={() =>
+                    deregisterOnlineConversationMutation.mutate({ id })
+                  }
+                  disabled={deregisterOnlineConversationMutation.isPending}
+                />
+                {data.isNotificationScheduled ? (
+                  <CustomButton
+                    label={"Cancel notification"}
+                    onPress={() => cancelNotificationMutation.mutate({ id })}
+                    disabled={cancelNotificationMutation.isPending}
+                  />
+                ) : (
+                  <CustomButton
+                    label={"Schedule notification"}
+                    onPress={() => scheduleNotificationMutation.mutate({ id })}
+                    disabled={scheduleNotificationMutation.isPending}
+                  />
+                )}
+              </View>
+            ) : (
+              <CustomButton
+                label={"Register"}
+                onPress={() =>
+                  registerOnlineConversationMutation.mutate({ id: id })
+                }
+                disabled={registerOnlineConversationMutation.isPending}
+              />
+            )}
             <CustomButton
               label={
                 data.canEnter
@@ -195,6 +219,7 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: "row",
+    gap: 12,
   },
   reportText: {
     color: colors.GRAY_400,

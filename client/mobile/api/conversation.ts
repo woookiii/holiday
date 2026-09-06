@@ -182,3 +182,23 @@ export async function getTurn(): Promise<GetTurnResponse> {
   const { data } = await axiosInstance.get("/onlineconversation/turn");
   return data;
 }
+
+export async function scheduleOnlineConversationNotification(body: {
+  id: string;
+}) {
+  const { data } = await axiosInstance.post(
+    "/onlineconversation/notification/schedule",
+    body,
+  );
+  return data;
+}
+
+export async function cancelOnlineConversationNotification(body: {
+  id: string;
+}) {
+  const { data } = await axiosInstance.post(
+    "/onlineconversation/notification/cancel",
+    body,
+  );
+  return data;
+}

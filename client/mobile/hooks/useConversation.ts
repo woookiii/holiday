@@ -1,12 +1,8 @@
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQueries,
-  useQuery,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQueries, useQuery } from "@tanstack/react-query";
 import {
   banParticipant,
   blockConversation,
+  cancelOnlineConversationNotification,
   createOfflineConversation,
   createOnlineConversation,
   deregisterOnlineConversation,
@@ -19,6 +15,7 @@ import {
   mapOfflineConversations,
   quitOfflineConversation,
   registerOnlineConversation,
+  scheduleOnlineConversationNotification,
   searchOfflineConversations,
   searchOnlineConversations,
 } from "@/api/conversation";
@@ -278,6 +275,40 @@ export function useDeregisterOnlineConversation() {
 export function useGetTurn() {
   return useQuery({
     queryFn: getTurn,
-    queryKey: [queryKey.CONVERSATION, queryKey.GET_TURN]
-  })
+    queryKey: [queryKey.CONVERSATION, queryKey.GET_TURN],
+  });
+}
+
+export function useScheduleOnlineConversationNotification() {
+  return useMutation({
+    mutationFn: scheduleOnlineConversationNotification,
+    onSuccess: async (data, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: [
+          queryKey.CONVERSATION,
+          queryKey.GET_ONLINE_CONVERSATION_DETAIL,
+          variables.id,
+        ],
+      });
+      Toast.show({
+        type: "success",
+        text1: "We will send push 15 minutes before convo start"
+      })
+    },
+  });
+}
+
+export function useCancelOnlineConversationNotification() {
+  return useMutation({
+    mutationFn: cancelOnlineConversationNotification,
+    onSuccess: async (data, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: [
+          queryKey.CONVERSATION,
+          queryKey.GET_ONLINE_CONVERSATION_DETAIL,
+          variables.id,
+        ],
+      });
+    },
+  });
 }

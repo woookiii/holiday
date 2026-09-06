@@ -26,6 +26,7 @@ export interface OnlineConversationDetailResponse {
   canEnter: boolean;
   isRegistrant: boolean;
   moderatorIds: string[];
+  isNotificationScheduled: boolean;
 }
 
 export interface BanParticipantRequest {
@@ -131,8 +132,7 @@ export interface OfflineConversationDetailResponse {
 }
 
 export interface GetTurnResponse {
-  uris: string[]
-  username: string
-  credential: string
+  uris: string[];
+  username: string;
+  credential: string;
 }
-
