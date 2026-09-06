@@ -132,27 +132,43 @@ export default function OnlineConversationDetail({
               />
             ) : data.isRegistrant ? (
               <View style={styles.buttonRow}>
-                <CustomButton
-                  label={"Cancel registration"}
-                  onPress={() =>
-                    deregisterOnlineConversationMutation.mutate({ id })
-                  }
-                  disabled={deregisterOnlineConversationMutation.isPending}
-                />
+                <View style={{ flex: 1 }}>
+                  <CustomButton
+                    label={"Cancel registration"}
+                    onPress={() =>
+                      deregisterOnlineConversationMutation.mutate({ id })
+                    }
+                    disabled={deregisterOnlineConversationMutation.isPending}
+                  />
+                </View>
                 {data.isNotificationScheduled ? (
                   <CustomButton
-                    label={<Ionicons name="notifications-off" />}
+                    label={
+                      <Ionicons
+                        name="notifications-off"
+                        size={20}
+                        color={colors.WHITE}
+                      />
+                    }
                     onPress={() => cancelNotificationMutation.mutate({ id })}
                     disabled={cancelNotificationMutation.isPending}
+                    style={styles.iconButton}
                   />
                 ) : (
                   <CustomButton
-                    label={<Ionicons name="notifications" />}
+                    label={
+                      <Ionicons
+                        name="notifications"
+                        size={20}
+                        color={colors.WHITE}
+                      />
+                    }
                     onPress={async () => {
                       await requestPermissionsAsync();
                       scheduleNotificationMutation.mutate({ id });
                     }}
                     disabled={scheduleNotificationMutation.isPending}
+                    style={styles.iconButton}
                   />
                 )}
               </View>
@@ -218,6 +234,11 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: "row",
     gap: 12,
+    alignItems: "center",
+    width: "100%",
+  },
+  iconButton: {
+    width: 44,
   },
   reportText: {
     color: colors.GRAY_400,
