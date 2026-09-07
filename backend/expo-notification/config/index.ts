@@ -53,7 +53,7 @@ export async function createKafkaConsumer() {
     "ssl.certificate.location": process.env.KAFKA_USER_CERT_PATH || undefined,
     "ssl.key.location": process.env.KAFKA_USER_KEY_PATH || undefined,
 
-    "group.id": "apn_notification",
+    "group.id": "apn-notification",
     "auto.offset.reset": "earliest",
     "group.protocol": "consumer",
     "group.remote.assignor": "uniform",

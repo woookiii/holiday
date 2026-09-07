@@ -16,19 +16,19 @@ import org.apache.flink.util.Collector;
 import java.io.Serial;
 import java.util.*;
 
-public class ScheduledNotificationFunction extends KeyedProcessFunction<UUID, IncomingNotificationEvent, OutgoingNotificationEvent> {
+public class ScheduledNotificationFunction extends KeyedProcessFunction<String, IncomingNotificationEvent, OutgoingNotificationEvent> {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private transient MapState<UUID, NotificationElement> elements;
+  private transient MapState<String, NotificationElement> elements;
   private transient ValueState<String> partitionType;
   private transient ValueState<Map<Integer, String>> sharedContents;
 
   @Override
   public void open(OpenContext openContext) throws Exception {
-    MapStateDescriptor<UUID, NotificationElement> eventsDescriptor =
-        new MapStateDescriptor<>("elements", UUID.class, NotificationElement.class);
+    MapStateDescriptor<String, NotificationElement> eventsDescriptor =
+        new MapStateDescriptor<>("elements", String.class, NotificationElement.class);
     elements = getRuntimeContext().getMapState(eventsDescriptor);
 
     ValueStateDescriptor<String> partitionTypeDescriptor =
@@ -68,9 +68,9 @@ public class ScheduledNotificationFunction extends KeyedProcessFunction<UUID, In
   }
 
   @Override
-  public void onTimer(long timestamp, KeyedProcessFunction<UUID, IncomingNotificationEvent, OutgoingNotificationEvent>.OnTimerContext ctx, Collector<OutgoingNotificationEvent> out) throws Exception {
-    Map<UUID, Map<Integer, String>> notifications = new HashMap<>();
-    UUID partitionId = ctx.getCurrentKey();
+  public void onTimer(long timestamp, KeyedProcessFunction<String, IncomingNotificationEvent, OutgoingNotificationEvent>.OnTimerContext ctx, Collector<OutgoingNotificationEvent> out) throws Exception {
+    Map<String, Map<Integer, String>> notifications = new HashMap<>();
+    String partitionId = ctx.getCurrentKey();
     var iterator = elements.entries().iterator();
     while (iterator.hasNext()) {
       var next = iterator.next();
