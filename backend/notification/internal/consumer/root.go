@@ -175,6 +175,7 @@ func (c *Consumer) distinguishMessage(ctx context.Context, message *sarama.Consu
 		if p.PartitionType == "online-conversation" {
 			c.service.PreprocessScheduledNotification(ctx, p.PartitionId, p.Notifications, p.SharedContents)
 		}
+		return
 	}
 	var p payload.PreparedMessage
 	err := json.Unmarshal(message.Value, &p)
