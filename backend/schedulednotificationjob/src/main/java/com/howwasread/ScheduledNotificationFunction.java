@@ -47,7 +47,7 @@ public class ScheduledNotificationFunction extends KeyedProcessFunction<UUID, In
       elements.remove(event.getKeyId());
       return;
     }
-    if (partitionType.value().isEmpty()) {
+    if (partitionType.value() == null) {
       partitionType.update(event.getType());
     }
     if (partitionType.value().equals("online-conversation")) {
