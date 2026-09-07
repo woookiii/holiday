@@ -19,8 +19,9 @@ func (s *Service) PreprocessScheduledNotification(ctx context.Context, partition
 	}
 	p := payload.NotificationMessage{
 		TokenMap: fcmtm,
-		Title:    fmt.Sprintf("The online conversation about %s starts soon", contents[0]),
-		Text:     "You can now enter the conversation room and talk!",
+		Title:    "Conversation starts soon",
+		Text: fmt.Sprintf("You can now enter the conversation about %s and talk!",
+			contents[0]),
 	}
 	if len(fcmtm) > 0 {
 		p.TokenMap = fcmtm
