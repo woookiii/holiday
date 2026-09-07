@@ -7,7 +7,14 @@ export default function WrittenBy() {
     <Controller
       name="writtenBy"
       control={control}
-      render={({ field: { onChange, value } }) => (
+      rules={{
+        validate: (data: string) => {
+          if (data.trim().length <= 0) {
+            return "Written by is required field";
+          }
+        },
+      }}
+      render={({ field: { onChange, value }, fieldState: { error } }) => (
         <InputField
           variant="standard"
           label="written by(required)"
@@ -17,6 +24,7 @@ export default function WrittenBy() {
           submitBehavior="blurAndSubmit"
           value={value}
           onChangeText={onChange}
+          error={error?.message}
         />
       )}
     />

@@ -24,7 +24,7 @@ export default function PhoneNumberInput(props: PhoneNumberInputProps) {
         control={control}
         rules={{
           validate: (data: string) => {
-            if (data.length <= 0) {
+            if (data.trim().length <= 0) {
               return "Put your Phone Number";
             }
           },
