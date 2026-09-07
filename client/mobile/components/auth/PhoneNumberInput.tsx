@@ -4,7 +4,6 @@ import { Controller, useFormContext } from "react-hook-form";
 import InputField from "@/components/InputField";
 
 type FormValue = {
-  // Kept for form compatibility with parent form
   countryCode: string;
   phoneNumber: string;
 };
@@ -34,7 +33,6 @@ export default function PhoneNumberInput(props: PhoneNumberInputProps) {
             value={value}
             onBlur={onBlur}
             onChangeText={(text) => {
-              // Keep only digits, but don't format
               const digitsOnly = text.replace(/[^\d]/g, "");
               onChange(digitsOnly);
             }}
